@@ -67,15 +67,15 @@ namespace RentAdvisor.Server
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
+            //app.UseHttpsRedirection();
 
             app.MapIdentityApi<User>();
 
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.MapControllers();
 
-            app.MapFallbackToFile("/index.html");
 
             app.Run();
         }
