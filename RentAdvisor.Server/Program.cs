@@ -10,7 +10,7 @@ namespace RentAdvisor.Server
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -76,6 +76,52 @@ namespace RentAdvisor.Server
 
             app.MapControllers();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+                var roles = new[] { "Admin", "Moderator", "PropertyOwner" };
+
+                foreach (var role in roles)
+                {
+                    if (!await roleManager.RoleExistsAsync(role))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(role));
+                    }
+                }
+
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
+                // Create one admin user, one moderator user and one normal user
+                var users = new[]
+                {
+                    new { UserName = "admin@example.com", Email = "admin@example.com", Password = "Admin@123", Role = "Admin" },
+                    new { UserName = "moderator@example.com", Email = "moderator@example.com", Password = "Moderator@123", Role = "Moderator" },
+                    new { UserName = "user@example.com", Email = "user@example.com", Password = "User@123", Role = "" }
+                };
+
+                foreach (var userInfo in users)
+                {
+                    var user = await userManager.FindByEmailAsync(userInfo.Email);
+                    if (user == null)
+                    {
+                        user = new User
+                        {
+                            UserName = userInfo.UserName,
+                            Email = userInfo.Email,
+                            EmailConfirmed = true
+                        };
+
+                        var result = await userManager.CreateAsync(user, userInfo.Password);
+                        if (result.Succeeded)
+                        {
+                            if (userInfo.Role != "")
+                                await userManager.AddToRoleAsync(user, userInfo.Role);
+                        }
+                    }
+                }
+
+            }
 
             app.Run();
         }
