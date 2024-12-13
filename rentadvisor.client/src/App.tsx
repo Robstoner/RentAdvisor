@@ -1,63 +1,50 @@
-import { useEffect, useState } from 'react';
 import './App.css';
+import './index.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import { useEffect, useState } from 'react';
+import axios from './api/axiosConfig';
+import Navbar from './components/Navbar';
+// import PrivateRoute from './components/PrivateRoute';
 
-interface Forecast {
-    date: string;
-    temperatureC: number;
-    temperatureF: number;
-    summary: string;
+import AuthLayout from './layout/AuthLayout';
+import MainLayout from './layout/MainLayout';
+export interface User {
+    id: string;
+    name: string;
+    roles: string[];
 }
 
 function App() {
-    const [forecasts, setForecasts] = useState<Forecast[]>();
+    
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        populateWeatherData();
+        fetchUser();
     }, []);
 
-    const contents = forecasts === undefined
-        ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
-        : <table className="table table-striped" aria-labelledby="tableLabel">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Temp. (C)</th>
-                    <th>Temp. (F)</th>
-                    <th>Summary</th>
-                </tr>
-            </thead>
-            <tbody>
-                {forecasts.map(forecast =>
-                    <tr key={forecast.date}>
-                        <td>{forecast.date}</td>
-                        <td>{forecast.temperatureC}</td>
-                        <td>{forecast.temperatureF}</td>
-                        <td>{forecast.summary}</td>
-                    </tr>
-                )}
-            </tbody>
-        </table>;
+    const fetchUser = async () => {
+        try {
+            const response = await axios.get('/user/current');
+            setUser(response.data);
+            console.log("sadas", response)
+        } catch (error) {
+            console.error('Error fetching user', error);
+        }
+    };
 
     return (
-        <div>
-            <h1 id="tableLabel">Weather forecast</h1>
-            <p>This component demonstrates fetching data from the server.</p>
-            {contents}
-        </div>
+        <BrowserRouter>
+            <Navbar user={user} setUser={setUser} />
+            <Routes>
+                <Route path="/" element={<MainLayout ><Home /></MainLayout>} />
+                <Route path="/login" element={<AuthLayout><Login setUser={setUser}/></AuthLayout>} />
+                <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
+            </Routes>
+        </BrowserRouter>
     );
-
-    async function populateWeatherData() {
-        try {
-            const response = await fetch('weatherforecast');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            setForecasts(data);
-        } catch (error) {
-            console.error('Failed to fetch weather data:', error);
-        }
-    }
 }
 
 export default App;
