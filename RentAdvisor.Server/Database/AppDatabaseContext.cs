@@ -6,7 +6,9 @@ namespace RentAdvisor.Server.Database
 {
     public class AppDatabaseContext : IdentityDbContext<User>
     {
-        public DbSet<User> Users { get; set; }
+        public DbSet<User> Users { get; set; } = default!;
+        public DbSet<Property> Properties { get; set; } = default!;
+        public DbSet<Review> Reviews { get; set; } = default!;
 
         public AppDatabaseContext() : base()
         {
@@ -14,5 +16,6 @@ namespace RentAdvisor.Server.Database
         public AppDatabaseContext(DbContextOptions<AppDatabaseContext> options) : base(options)
         {
         }
+        
     }
 }
