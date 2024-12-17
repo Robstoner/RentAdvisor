@@ -3,7 +3,6 @@ import React, { ReactNode } from 'react';
 
 interface MainLayoutProps {
     children: ReactNode;
-    // topics: any[];
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {

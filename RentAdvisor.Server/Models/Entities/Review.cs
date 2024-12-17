@@ -9,6 +9,7 @@ namespace RentAdvisor.Server.Models.Entities
         public string Description { get; set; }
 
         public string UserId { get; set; }
+        [JsonIgnore]
         public virtual User User { get; set; }
         public Guid PropertyId { get; set; }
         [JsonIgnore]

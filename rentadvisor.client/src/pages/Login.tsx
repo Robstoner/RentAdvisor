@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from '../api/axiosConfig.ts';
 import { useNavigate } from 'react-router-dom';
-// import '../css/Auth.css';
+import '../css/Auth.css';
 
 import { User } from '../App.tsx';
 
