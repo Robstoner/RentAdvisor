@@ -5,6 +5,8 @@ namespace RentAdvisor.Server.Models.Entities
 {
     public class User : IdentityUser
     {
+        public int Score { get; set; } = 0;
+
         [JsonIgnore]
         public virtual ICollection<Review> Reviews { get; set; }
 

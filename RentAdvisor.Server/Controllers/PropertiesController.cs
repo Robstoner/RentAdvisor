@@ -43,6 +43,18 @@ namespace RentAdvisor.Server.Controllers
             return @property;
         }
 
+        // GET: api/Properties/5/Reviews
+        [HttpGet("{id}/Reviews")]
+        public async Task<ActionResult<IEnumerable<Review>>> GetPropertyReviews(Guid id)
+        {
+            var @property = await _context.Properties.FindAsync(id);
+            if (@property == null)
+            {
+                return NotFound();
+            }
+            return await _context.Reviews.Where(r => r.PropertyId == id).ToListAsync();
+        }
+
         // PUT: api/Properties/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}"), Authorize]
