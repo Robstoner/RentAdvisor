@@ -5,8 +5,6 @@ VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RentAdvisor.Server", "RentAdvisor.Server\RentAdvisor.Server.csproj", "{C8FEB4BD-A99F-4F17-8811-9537244A6078}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "rentadvisor.client", "rentadvisor.client\rentadvisor.client.esproj", "{A60A797D-B36B-49B5-8B92-012CFF5B65DE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,12 +15,6 @@ Global
 		{C8FEB4BD-A99F-4F17-8811-9537244A6078}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8FEB4BD-A99F-4F17-8811-9537244A6078}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8FEB4BD-A99F-4F17-8811-9537244A6078}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A60A797D-B36B-49B5-8B92-012CFF5B65DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A60A797D-B36B-49B5-8B92-012CFF5B65DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A60A797D-B36B-49B5-8B92-012CFF5B65DE}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{A60A797D-B36B-49B5-8B92-012CFF5B65DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A60A797D-B36B-49B5-8B92-012CFF5B65DE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A60A797D-B36B-49B5-8B92-012CFF5B65DE}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
