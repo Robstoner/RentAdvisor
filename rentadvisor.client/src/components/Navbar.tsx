@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import '../css/Navbar.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faFaceKissBeam } from '@fortawesome/free-solid-svg-icons';
+import '../css/Navbar.css';
 import axios from '../api/axiosConfig';
+import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
 
 
 import { User } from '../App';
@@ -76,14 +80,17 @@ const Navbar: React.FC<NavbarProps> = ({ user, setUser }) => {
   return (
     <div className="navbar">
       <div className="navbar-logo" onClick={handleLogoClick}>
+        <FontAwesomeIcon icon={faFaceKissBeam} className="icon" />
         <p>Homepage</p>
       </div>
       <div className="navbar-user" onClick={handleUserClick} ref={dropdownRef}>
+        <FontAwesomeIcon icon={faUser} className="icon" />
         {dropdownVisible && (
           <div >
             {user ? (
               <div className="dropdown-menu">
                 <div className='dropdown-item'  onClick={handleProfileClick}>
+                  <p className='dropdown-icon-user'><FontAwesomeIcon icon={faCircleUser} /></p>
                   <div className='dropdown-user'>
                     <p className=''>{user.name}</p>
                     <p className='dropdown-role'>{(user.roles && user.roles.length > 0) ? user.roles.join(', ') : 'User'}</p>

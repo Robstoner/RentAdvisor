@@ -1,0 +1,50 @@
+.create-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 2rem 8rem 2rem 8rem;
+    width: 100%;
+}
+
+.create-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.create-content form {
+    margin-top: 1rem;
+}
+
+.create-content p {
+    margin: 0;
+}
+
+.button-group {
+    display: flex;
+    justify-content: end;
+    gap: 1rem;
+}
+
+.expanding-textarea {
+    overflow: hidden;
+    resize: none;
+    min-height: 100px; /* Initial height */
+    transition: height 0.2s ease;
+}
+
+.button-group button {
+    background-color:  #333;
+    color: #fff;
+    border: none;
+    padding: .5rem 1rem .5rem 1rem;
+    border-radius: .5rem;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.button-group button:hover {
+    background-color: black;
+    color: white;
+}

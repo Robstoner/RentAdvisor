@@ -1,0 +1,67 @@
+.role-button {
+    padding: .5rem 1rem .5rem 1rem;
+    border-radius: .5rem;
+    cursor: pointer;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    font-size: 16px;
+}
+
+.role-list {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    gap: .5rem;
+}
+
+.profile-details {
+    padding-top: 2rem;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.role-management {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 2rem;
+}
+
+.role-select-container {
+    display: flex;
+    gap: 1rem;
+}
+
+.role-select {
+    padding: .5rem 1rem .5rem 1rem;
+    border-radius: .5rem;
+    cursor: pointer;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    font-size: 16px;
+}
+
+.profile-user {
+    display: flex;
+    margin: 0;
+    align-items: center;
+}
+
+.profile-icon {
+    font-size: 40px;
+    padding-right: .5rem;
+}
+
+.role-title {
+    text-align: center;
+    font-size: 18px;
+    padding-top: 2rem;
+    margin: 0;
+}
+
+.profile-username {
+    font-size: 24px;
+}

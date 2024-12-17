@@ -1,0 +1,46 @@
+h2, h3 {
+    color: #ffffffbb;
+    margin: 0;
+    padding: 0;
+}
+
+.home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 2rem;
+}
+
+.home-icons-container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    top: 70px;
+    left: 250px;
+    gap: 1rem;
+}
+
+.home-icon:nth-child(1) {
+    rotate: -45deg;
+    padding-left: 0rem;
+}
+.home-icon:nth-child(2) {
+    rotate: 0deg;
+    padding-left: 1rem;
+
+}
+.home-icon:nth-child(3) {
+    rotate: 30deg;
+    padding-left: 0rem;
+}
+
+.home-content {
+    margin-top: 25rem;
+}
