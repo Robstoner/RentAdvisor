@@ -12,8 +12,8 @@ using RentAdvisor.Server.Database;
 namespace RentAdvisor.Server.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    [Migration("20241217154340_terog")]
-    partial class terog
+    [Migration("20241218100729_Add score to user")]
+    partial class Addscoretouser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

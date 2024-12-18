@@ -5,7 +5,7 @@
 namespace RentAdvisor.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class YoyoMigration : Migration
+    public partial class Addscoretouser : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
