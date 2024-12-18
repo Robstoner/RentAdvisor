@@ -113,6 +113,7 @@ const Profile: React.FC = () => {
                     <FontAwesomeIcon icon={faUser} className="profile-icon" />
                     <p className='profile-username'>{user.name}</p>
                 </div>
+                <p className='profile-score'>Score: {user.score}</p>
                 <p className='role-title'>Roles:</p>
                 <div className='role-list'>
                     {user.roles.map(role => (

@@ -97,6 +97,7 @@ namespace RentAdvisor.Server
                 {
                     new { UserName = "admin@example.com", Email = "admin@example.com", Password = "Admin@123", Role = "Admin" },
                     new { UserName = "moderator@example.com", Email = "moderator@example.com", Password = "Moderator@123", Role = "Moderator" },
+                    new { UserName = "propertyowner@example.com", Email = "propertyowner@example.com", Password = "PropertyOwner@123", Role = "PropertyOwner" },
                     new { UserName = "user@example.com", Email = "user@example.com", Password = "User@123", Role = "" }
                 };
 

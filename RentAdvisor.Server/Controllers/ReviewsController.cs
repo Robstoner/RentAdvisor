@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RentAdvisor.Server.Database;
@@ -16,10 +18,12 @@ namespace RentAdvisor.Server.Controllers
     public class ReviewsController : ControllerBase
     {
         private readonly AppDatabaseContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public ReviewsController(AppDatabaseContext context)
+        public ReviewsController(AppDatabaseContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: api/Reviews
@@ -53,6 +57,21 @@ namespace RentAdvisor.Server.Controllers
                 return BadRequest();
             }
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            if (!userRoles.Contains("Admin") && !userRoles.Contains("Moderator") && userId != review.UserId)
+            {
+                return Unauthorized();
+            }
+
             _context.Reviews.Update(review);
             _context.Entry(review).State = EntityState.Modified;
 
@@ -80,6 +99,13 @@ namespace RentAdvisor.Server.Controllers
         [HttpPost, Authorize]
         public async Task<ActionResult<Review>> PostReview(ReviewPostRequest reviewRequest)
         {
+            // check if the property already had a review from the user
+            var existingReview = await _context.Reviews.FirstOrDefaultAsync(r => r.PropertyId == reviewRequest.PropertyId && r.UserId == reviewRequest.UserId);
+            if (existingReview != null)
+            {
+                return Conflict("User already reviewed this property");
+            }
+
             var review = new Review
             {
                 Id = Guid.NewGuid(),
@@ -100,16 +126,35 @@ namespace RentAdvisor.Server.Controllers
         }
 
         // DELETE: api/Reviews/5
-        [HttpDelete("{id}"), Authorize(Roles = "Admin,Moderator")]
+        [HttpDelete("{id}"), Authorize]
         public async Task<IActionResult> DeleteReview(Guid id)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+            
+            if (user == null)
+            {
+                return NotFound();
+            }
+
             var review = await _context.Reviews.FindAsync(id);
             if (review == null)
             {
                 return NotFound();
             }
 
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            if (!userRoles.Contains("Admin") && !userRoles.Contains("Moderator") && userId != review.UserId)
+            {
+                return Unauthorized();
+            }
+
             _context.Reviews.Remove(review);
+            await _context.SaveChangesAsync();
+
+            user.Score -= 3;
+            _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
             return NoContent();

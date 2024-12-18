@@ -19,6 +19,7 @@ export interface User {
     id: string;
     name: string;
     roles: string[];
+    score: number;
 }
 
 function App() {

@@ -4,6 +4,12 @@ h2, h3 {
     padding: 0;
 }
 
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
 .home-container {
     display: flex;
     flex-direction: column;

@@ -58,12 +58,21 @@ namespace RentAdvisor.Server.Controllers
         // PUT: api/Properties/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}"), Authorize]
-        public async Task<IActionResult> PutProperty(Guid id, Property @updatedProperty)
+        public async Task<IActionResult> PutProperty(Guid id, PropertyPutRequest propertyRequest)
         {
-            if (id != @updatedProperty.Id)
+            if (id != propertyRequest.Id)
             {
                 return BadRequest();
             }
+
+            var updatedProperty = new Property
+            {
+                Id = propertyRequest.Id,
+                Name = propertyRequest.Name,
+                Address = propertyRequest.Address,
+                Description = propertyRequest.Description,
+                Features = propertyRequest.Features,
+            };
 
             _context.Properties.Update(updatedProperty);
 
@@ -108,7 +117,7 @@ namespace RentAdvisor.Server.Controllers
         }
 
         // DELETE: api/Properties/5
-        [HttpDelete("{id}"), Authorize(Roles = "Admin,Moderator")]
+        [HttpDelete("{id}"), Authorize(Roles = "Admin,Moderator,PropertyOwner")]
         public async Task<IActionResult> DeleteProperty(Guid id)
         {
             var @property = await _context.Properties.FindAsync(id);
@@ -130,6 +139,15 @@ namespace RentAdvisor.Server.Controllers
 
         public class PropertyPostRequest
         {
+            public string Name { get; set; }
+            public string Address { get; set; }
+            public string Description { get; set; }
+            public string[] Features { get; set; }
+        }
+
+        public class PropertyPutRequest
+        {
+            public Guid Id { get; set; }
             public string Name { get; set; }
             public string Address { get; set; }
             public string Description { get; set; }

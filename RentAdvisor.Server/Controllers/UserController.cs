@@ -58,6 +58,7 @@ namespace Discussion_Forum.Server.Controllers
             obfuscatedUser.Id = userId;
             obfuscatedUser.Email = user.Email;
             obfuscatedUser.Name = user.UserName;
+            obfuscatedUser.Score = user.Score;
             obfuscatedUser.Roles = await _userManager.GetRolesAsync(user);
 
             return Ok(obfuscatedUser);
@@ -77,6 +78,7 @@ namespace Discussion_Forum.Server.Controllers
             obfuscatedUser.Id = user.Id;
             obfuscatedUser.Email = user.Email;
             obfuscatedUser.Name = user.UserName;
+            obfuscatedUser.Score = user.Score;
             obfuscatedUser.Roles = await _userManager.GetRolesAsync(user);
 
             return Ok(obfuscatedUser);
@@ -190,6 +192,7 @@ namespace Discussion_Forum.Server.Controllers
             public string Id { get; set; }
             public string Name { get; set; }
             public string Email { get; set; }
+            public int Score { get; set; }
             public IList<string> Roles { get; set; }
         }
     }

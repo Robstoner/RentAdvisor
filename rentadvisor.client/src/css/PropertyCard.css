@@ -55,12 +55,12 @@ body {
     margin-bottom: 3rem;
 }
 
-.edit-button, .delete-button {
+.create-button, .edit-button, .delete-button, .edit-review-button, .delete-review-button {
     background: linear-gradient(135deg, #8C52E0, #6F27D8);
     color: #fff;
     border: none;
-    padding: 1rem 2.5rem;
-    font-size: 1.2rem;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.7rem;
     font-weight: bold;
     border-radius: 15px;
     cursor: pointer;

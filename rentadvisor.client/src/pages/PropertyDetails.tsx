@@ -28,6 +28,7 @@ type User = {
     id: string;
     name: string;
     email: string;
+    roles: string[];
 };
 
 const PropertyDetails: React.FC = () => {
@@ -79,15 +80,21 @@ const PropertyDetails: React.FC = () => {
 
         if (propertyId) {
             fetchPropertyDetails();
+        console.log(currentUser);
+
         }
     }, [propertyId]);
 
     // Handle property deletion
     const handleDelete = async () => {
         try {
-            await axios.delete(`/api/Properties/${propertyId}`);
-            alert('Property deleted successfully!');
-            navigate('/'); // Redirect to the home page after deletion
+            if (currentUser?.roles.includes('Admin')) {
+                await axios.delete(`/api/Properties/${propertyId}`);
+                alert('Property deleted successfully!');
+                navigate('/'); // Redirect to the home page after deletion
+            } else {
+                alert('You do not have permission to delete this property.');
+            }
         } catch (error) {
             setError('Failed to delete property. Please try again.');
             console.error('Error deleting property:', error);
@@ -96,7 +103,11 @@ const PropertyDetails: React.FC = () => {
 
     // Navigate to the edit page
     const handleEdit = () => {
-        navigate(`/propertyEdit/${propertyId}`);
+        if (currentUser?.roles.includes('Admin') || currentUser?.roles.includes('PropertyOwner') || currentUser?.roles.includes('Moderator')) {
+            navigate(`/propertyEdit/${propertyId}`);
+        } else {
+            alert('You do not have permission to edit this property.');
+        }
     };
 
     // Handle input change for new review form
@@ -141,6 +152,33 @@ const PropertyDetails: React.FC = () => {
         }
     };
 
+    // Handle review deletion
+    const handleDeleteReview = async (reviewId: string, userId: string) => {
+        try {
+            if (currentUser?.roles.includes('Admin') || currentUser?.roles.includes('Moderator') || currentUser?.id === userId) {
+                await axios.delete(`/api/reviews/${reviewId}`);
+                alert('Review deleted successfully!');
+                // Refresh reviews after successful deletion
+                const updatedReviewsResponse = await axios.get<Review[]>(`/api/Properties/${propertyId}/Reviews`);
+                setReviews(updatedReviewsResponse.data);
+            } else {
+                alert('You do not have permission to delete this review.');
+            }
+        } catch (error) {
+            setError('Failed to delete review. Please try again.');
+            console.error('Error deleting review:', error);
+        }
+    };
+
+    // Handle review edit
+    const handleEditReview = (reviewId: string, userId: string) => {
+        if (currentUser?.roles.includes('Admin') || currentUser?.roles.includes("Moderator") || currentUser?.id === userId) {
+            // edit review
+        } else {
+            alert('You do not have permission to edit this review.');
+        }
+    };
+
     if (loading) {
         return <div>Loading property details...</div>;
     }
@@ -161,8 +199,12 @@ const PropertyDetails: React.FC = () => {
                 <p className="property-description">{property.description}</p>
             </div>
             <div className="button-container">
-                <button onClick={handleEdit} className="edit-button">Edit Property</button>
-                <button onClick={handleDelete} className="delete-button">Delete Property</button>
+                {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('PropertyOwner') || currentUser?.roles.includes('Moderator') ? (
+                    <button onClick={handleEdit} className="edit-button">Edit Property</button>
+                ) : null}
+                {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('PropertyOwner') ? (
+                    <button onClick={handleDelete} className="delete-button">Delete Property</button>
+                ) : null}
             </div>
 
             <div className="property-features">
@@ -190,6 +232,12 @@ const PropertyDetails: React.FC = () => {
                                 <strong>By:</strong> {review.userId} <br />
                                 <strong>Posted on:</strong> {new Date(review.createdAt).toLocaleDateString()}
                             </p>
+                            {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('Moderator') || currentUser?.id === review.userId ? (
+                                <button onClick={() => handleEditReview(review.id, review.userId)} className="edit-review-button">Edit Review</button>
+                            ) : null}
+                            {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('Moderator') || currentUser?.id === review.userId ? (
+                                <button onClick={() => handleDeleteReview(review.id, review.userId)} className="delete-review-button">Delete Review</button>
+                            ) : null}
                         </div>
                     ))
                 ) : (

@@ -4,6 +4,7 @@ import axios from "../api/axiosConfig";
 import PropertyCard from "../components/PropertyCard";
 import "../css/PropertyCard.css";
 import "../css/Home.css"
+import "../css/CreateProperty.css"
 type Review = {
     title: string;
     description: string;
@@ -60,9 +61,7 @@ const Home: React.FC = () => {
       <div className="home-icons-container"></div>
       <div className="home-content">
         <div className="button-container">
-          <button onClick={handleCreateProperty}>
-            Create Property
-          </button>
+          <button className='create-button' type="button" onClick={handleCreateProperty}>Create Property</button>
         </div>
         {loading ? (
           <div>Loading properties...</div>
