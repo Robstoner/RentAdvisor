@@ -80,17 +80,20 @@ const PropertyDetails: React.FC = () => {
 
         if (propertyId) {
             fetchPropertyDetails();
-        console.log(currentUser);
+            console.log(currentUser);
 
         }
     }, [propertyId]);
 
     // Handle property deletion
     const handleDelete = async () => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this property? This action cannot be undone.");
+        if (!confirmDelete) {
+            return;
+        }
         try {
             if (currentUser?.roles.includes('Admin')) {
                 await axios.delete(`/api/Properties/${propertyId}`);
-                alert('Property deleted successfully!');
                 navigate('/'); // Redirect to the home page after deletion
             } else {
                 alert('You do not have permission to delete this property.');
@@ -100,7 +103,6 @@ const PropertyDetails: React.FC = () => {
             console.error('Error deleting property:', error);
         }
     };
-
     // Navigate to the edit page
     const handleEdit = () => {
         if (currentUser?.roles.includes('Admin') || currentUser?.roles.includes('PropertyOwner') || currentUser?.roles.includes('Moderator')) {
@@ -136,7 +138,6 @@ const PropertyDetails: React.FC = () => {
             };
 
             await axios.post('/api/Reviews', reviewPayload);
-            alert('Review submitted successfully!');
 
             // Reset form
             setNewReview({ title: '', description: '' });
@@ -157,7 +158,6 @@ const PropertyDetails: React.FC = () => {
         try {
             if (currentUser?.roles.includes('Admin') || currentUser?.roles.includes('Moderator') || currentUser?.id === userId) {
                 await axios.delete(`/api/reviews/${reviewId}`);
-                alert('Review deleted successfully!');
                 // Refresh reviews after successful deletion
                 const updatedReviewsResponse = await axios.get<Review[]>(`/api/Properties/${propertyId}/Reviews`);
                 setReviews(updatedReviewsResponse.data);
@@ -193,56 +193,36 @@ const PropertyDetails: React.FC = () => {
 
     return (
         <div className="main-container">
+
             <div className='top-content'>
-                <h1 className="property-name">{property.name}</h1>
-                <p className="property-address">{property.address}</p>
-                <p className="property-description">{property.description}</p>
-            </div>
-            <div className="button-container">
-                {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('PropertyOwner') || currentUser?.roles.includes('Moderator') ? (
-                    <button onClick={handleEdit} className="edit-button">Edit Property</button>
-                ) : null}
-                {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('PropertyOwner') ? (
-                    <button onClick={handleDelete} className="delete-button">Delete Property</button>
-                ) : null}
-            </div>
-
-            <div className="property-features">
-                <h3>Features:</h3>
-                <ul>
-                    {property.features.map((feature, index) => (
-                        <li key={index}>{feature}</li>
-                    ))}
-                </ul>
-            </div>
-
-            <div className="property-dates">
-                <p>Listed on: {new Date(property.createdAt).toLocaleDateString()}</p>
-                <p>Last updated: {new Date(property.updatedAt).toLocaleDateString()}</p>
-            </div>
-
-            <div className="property-reviews">
-                <h3>Reviews:</h3>
-                {reviews.length > 0 ? (
-                    reviews.map((review) => (
-                        <div key={review.id} className="review-card">
-                            <h4>{review.title}</h4>
-                            <p className="review-description">{review.description}</p>
-                            <p className="review-meta">
-                                <strong>By:</strong> {review.userId} <br />
-                                <strong>Posted on:</strong> {new Date(review.createdAt).toLocaleDateString()}
-                            </p>
-                            {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('Moderator') || currentUser?.id === review.userId ? (
-                                <button onClick={() => handleEditReview(review.id, review.userId)} className="edit-review-button">Edit Review</button>
-                            ) : null}
-                            {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('Moderator') || currentUser?.id === review.userId ? (
-                                <button onClick={() => handleDeleteReview(review.id, review.userId)} className="delete-review-button">Delete Review</button>
-                            ) : null}
-                        </div>
-                    ))
-                ) : (
-                    <p>No reviews available for this property.</p>
-                )}
+                <div className='property-image'></div>
+                <div className='property-title'>
+                    <h1 className="property-name">{property.name}</h1>
+                </div>
+                <div className="propertybody">
+                    <p className="property-address">{property.address}</p>
+                    <p className="property-description">{property.description}</p>
+                </div>
+                <div className="property-features">
+                    <h3>Features:</h3>
+                    <ul>
+                        {property.features.map((feature, index) => (
+                            <li key={index}>{feature}</li>
+                        ))}
+                    </ul>
+                </div>
+                <div className="property-dates">
+                    <p>Listed on: {new Date(property.createdAt).toLocaleDateString()}</p>
+                    <p>Last updated: {new Date(property.updatedAt).toLocaleDateString()}</p>
+                </div>
+                <div className="button-container">
+                    {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('PropertyOwner') || currentUser?.roles.includes('Moderator') ? (
+                        <button onClick={handleEdit} className="edit-button">Edit Property</button>
+                    ) : null}
+                    {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('PropertyOwner') ? (
+                        <button onClick={handleDelete} className="delete-button">Delete Property</button>
+                    ) : null}
+                </div>
             </div>
 
             <div className="new-review-form">
@@ -270,6 +250,31 @@ const PropertyDetails: React.FC = () => {
                     </div>
                 </form>
             </div>
+
+            <div className="property-reviews">
+                <h3>Reviews:</h3>
+                {reviews.length > 0 ? (
+                    reviews.map((review) => (
+                        <div key={review.id} className="review-card">
+                            <h4>{review.title}</h4>
+                            <p className="review-description">{review.description}</p>
+                            <p className="review-meta">
+                                <strong>By:</strong> {review.userId} <br />
+                                <strong>Posted on:</strong> {new Date(review.createdAt).toLocaleDateString()}
+                            </p>
+                            {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('Moderator') || currentUser?.id === review.userId ? (
+                                <button onClick={() => handleEditReview(review.id, review.userId)} className="edit-review-button">Edit Review</button>
+                            ) : null}
+                            {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('Moderator') || currentUser?.id === review.userId ? (
+                                <button onClick={() => handleDeleteReview(review.id, review.userId)} className="delete-review-button">Delete Review</button>
+                            ) : null}
+                        </div>
+                    ))
+                ) : (
+                    <p>No reviews available for this property.</p>
+                )}
+            </div>
+
 
         </div>
     );

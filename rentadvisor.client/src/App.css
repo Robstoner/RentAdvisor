@@ -1,4 +1,25 @@
-﻿﻿#root {
+﻿﻿/* App.css */
+
+/* General Reset */
+/* * {
+    margin: 0;
+    padding: 0;
+} */
+
+html, body {
+    height: 100%;
+    font-family: 'Arial', sans-serif;
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+#root {
     color: white;
 }
 
@@ -73,20 +94,6 @@ button:focus {
     margin-top: 1rem;
 }
 
-.sidebar {
-    height: 100%;
-    width: 250px;
-    position: fixed;
-    z-index: 1;
-    background-color: #111;
-    margin-top: 50px; /* 50px for navbar */
-
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
-
 .main-content {
-    display: flex;
-    justify-content: center;
     padding-top: 50px; /* 50px for navbar */
 }
