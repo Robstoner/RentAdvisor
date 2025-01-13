@@ -74,9 +74,9 @@ body {
     margin: 0 10rem 0 10rem;
 }
 
-.properties-card:hover {
+/* .properties-card:hover {
     transform: scale(1.001);
-}
+} */
 
 /* Responsive styles */
 @media (max-width: 768px) {

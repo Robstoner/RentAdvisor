@@ -89,14 +89,17 @@ const Navbar: React.FC<NavbarProps> = ({ user, setUser }) => {
           <div >
             {user ? (
               <div className="dropdown-menu">
-                <div className='dropdown-item'  onClick={handleProfileClick}>
+                <div className='dropdown-item' onClick={handleProfileClick}>
                   <p className='dropdown-icon-user'><FontAwesomeIcon icon={faCircleUser} /></p>
                   <div className='dropdown-user'>
                     <p className=''>{user.name}</p>
                     <p className='dropdown-role'>{(user.roles && user.roles.length > 0) ? user.roles.join(', ') : 'User'}</p>
                   </div>
                 </div>
-                <p className="dropdown-item" onClick={handleLogout}>Logout</p>
+                <div className='dropdown-item'>
+                  <p>Score: {user.score}</p>
+                </div>
+                  <p className="dropdown-item" onClick={handleLogout}>Logout</p>
               </div>
             ) : (
               <div className="dropdown-menu">
