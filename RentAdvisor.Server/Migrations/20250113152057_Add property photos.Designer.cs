@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RentAdvisor.Server.Database;
 
@@ -11,9 +12,11 @@ using RentAdvisor.Server.Database;
 namespace RentAdvisor.Server.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    partial class AppDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250113152057_Add property photos")]
+    partial class Addpropertyphotos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -158,6 +161,21 @@ namespace RentAdvisor.Server.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("PropertyPropertyPhotos", b =>
+                {
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PropertyPhotosId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PropertyId", "PropertyPhotosId");
+
+                    b.HasIndex("PropertyPhotosId");
+
+                    b.ToTable("PropertyPropertyPhotos");
+                });
+
             modelBuilder.Entity("RentAdvisor.Server.Models.Entities.Property", b =>
                 {
                     b.Property<Guid>("Id")
@@ -186,18 +204,7 @@ namespace RentAdvisor.Server.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("Properties");
                 });
@@ -215,23 +222,7 @@ namespace RentAdvisor.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("PropertyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("PropertyId");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("PropertiesPhotos");
                 });
@@ -400,42 +391,19 @@ namespace RentAdvisor.Server.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RentAdvisor.Server.Models.Entities.Property", b =>
+            modelBuilder.Entity("PropertyPropertyPhotos", b =>
                 {
-                    b.HasOne("RentAdvisor.Server.Models.Entities.User", "User")
+                    b.HasOne("RentAdvisor.Server.Models.Entities.Property", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("RentAdvisor.Server.Models.Entities.User", null)
-                        .WithMany("Properties")
-                        .HasForeignKey("UserId1");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("RentAdvisor.Server.Models.Entities.PropertyPhotos", b =>
-                {
-                    b.HasOne("RentAdvisor.Server.Models.Entities.Property", "Property")
-                        .WithMany("PropertyPhotos")
                         .HasForeignKey("PropertyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RentAdvisor.Server.Models.Entities.User", "User")
+                    b.HasOne("RentAdvisor.Server.Models.Entities.PropertyPhotos", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasForeignKey("PropertyPhotosId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("RentAdvisor.Server.Models.Entities.User", null)
-                        .WithMany("PropertyPhotos")
-                        .HasForeignKey("UserId1");
-
-                    b.Navigation("Property");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RentAdvisor.Server.Models.Entities.Review", b =>
@@ -459,17 +427,11 @@ namespace RentAdvisor.Server.Migrations
 
             modelBuilder.Entity("RentAdvisor.Server.Models.Entities.Property", b =>
                 {
-                    b.Navigation("PropertyPhotos");
-
                     b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("RentAdvisor.Server.Models.Entities.User", b =>
                 {
-                    b.Navigation("Properties");
-
-                    b.Navigation("PropertyPhotos");
-
                     b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618

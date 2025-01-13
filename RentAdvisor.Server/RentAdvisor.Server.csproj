@@ -28,6 +28,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="8.0.2" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Photos\" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\rentadvisor.client\rentadvisor.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>

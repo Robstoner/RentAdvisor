@@ -9,7 +9,10 @@ namespace RentAdvisor.Server.Models.Entities
 
         [JsonIgnore]
         public virtual ICollection<Review> Reviews { get; set; }
-
+        [JsonIgnore]
+        public virtual ICollection<Property> Properties { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<PropertyPhotos> PropertyPhotos { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime LastUpdatedAt { get; set; } = DateTime.UtcNow;
         public DateTime lastLogin { get; set; } = DateTime.UtcNow;

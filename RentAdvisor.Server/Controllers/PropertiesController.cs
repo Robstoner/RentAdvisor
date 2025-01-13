@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RentAdvisor.Server.Database;
 using RentAdvisor.Server.Models.Entities;
+using Property = RentAdvisor.Server.Models.Entities.Property;
 
 namespace RentAdvisor.Server.Controllers
 {
@@ -16,12 +20,15 @@ namespace RentAdvisor.Server.Controllers
     public class PropertiesController : ControllerBase
     {
         private readonly AppDatabaseContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public PropertiesController(AppDatabaseContext context)
+        public PropertiesController(AppDatabaseContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
+        #region Property
         // GET: api/Properties
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Property>>> GetProperty()
@@ -60,40 +67,58 @@ namespace RentAdvisor.Server.Controllers
         [HttpPut("{id}"), Authorize]
         public async Task<IActionResult> PutProperty(Guid id, PropertyPutRequest propertyRequest)
         {
-            if (id != propertyRequest.Id)
-            {
-                return BadRequest();
-            }
-
-            var updatedProperty = new Property
-            {
-                Id = propertyRequest.Id,
-                Name = propertyRequest.Name,
-                Address = propertyRequest.Address,
-                Description = propertyRequest.Description,
-                Features = propertyRequest.Features,
-            };
-
-            _context.Properties.Update(updatedProperty);
-
-            _context.Entry(@updatedProperty).State = EntityState.Modified;
-
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var user = await _context.Users.FindAsync(userId);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                var userRoles = await _userManager.GetRolesAsync(user);
+
+                if (!userRoles.Contains("Admin") && !userRoles.Contains("Moderator") && userId != propertyRequest.UserId)
+                {
+                    return Unauthorized();
+                }
+
+                if (id != propertyRequest.Id)
+                {
+                    return BadRequest();
+                }
+
+                var updatedProperty = new Property
+                {
+                    Id = propertyRequest.Id,
+                    Name = propertyRequest.Name,
+                    Address = propertyRequest.Address,
+                    Description = propertyRequest.Description,
+                    Features = propertyRequest.Features,
+                };
+                if (propertyRequest.PhotoId != null)
+                    await DeletePhoto((Guid)propertyRequest.PhotoId);
+                await UploadPhotos(propertyRequest.Id, propertyRequest.UserId, @propertyRequest.Photos);
+                _context.Properties.Update(updatedProperty);
+
+                _context.Entry(@updatedProperty).State = EntityState.Modified;
+
                 await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
+                await transaction.CommitAsync();
+            }         
+            catch (Exception ex)
             {
+                await transaction.RollbackAsync();
                 if (!PropertyExists(id))
                 {
                     return NotFound();
                 }
                 else
                 {
-                    throw;
+                    return BadRequest(new { Message = "An error occurred while updating the property.", Details = ex.Message });
                 }
             }
-
             return NoContent();
         }
 
@@ -102,47 +127,215 @@ namespace RentAdvisor.Server.Controllers
         [HttpPost, Authorize]
         public async Task<ActionResult<Property>> PostProperty(PropertyPostRequest @propertyRequest)
         {
-            var property = new Property
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                Id = Guid.NewGuid(),
-                Name = @propertyRequest.Name,
-                Address = @propertyRequest.Address,
-                Description = @propertyRequest.Description,
-                Features = @propertyRequest.Features,
-            };
-            _context.Properties.Add(@property);
-            await _context.SaveChangesAsync();
+                var property = new Property
+                {
+                    Id = Guid.NewGuid(),
+                    Name = @propertyRequest.Name,
+                    Address = @propertyRequest.Address,
+                    Description = @propertyRequest.Description,
+                    Features = @propertyRequest.Features,
+                    UserId = @propertyRequest.UserId
+                };
+                _context.Properties.Add(@property);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProperty", new { id = @property.Id }, @property);
+                await UploadPhotos(property.Id, @propertyRequest.UserId, @propertyRequest.Photos);
+
+                await transaction.CommitAsync();
+
+                return CreatedAtAction("GetProperty", new { id = @property.Id }, @property);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+
+                return BadRequest(new { Message = "An error occurred while creating the property.", Details = ex.Message });
+            }            
         }
 
         // DELETE: api/Properties/5
         [HttpDelete("{id}"), Authorize(Roles = "Admin,Moderator,PropertyOwner")]
         public async Task<IActionResult> DeleteProperty(Guid id)
         {
-            var @property = await _context.Properties.FindAsync(id);
-            if (@property == null)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                return NotFound();
+                var @property = await _context.Properties.FindAsync(id);
+                if (@property == null)
+                {
+                    return NotFound();
+                }
+
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var user = await _context.Users.FindAsync(userId);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                var userRoles = await _userManager.GetRolesAsync(user);
+
+                if (!userRoles.Contains("Admin") && !userRoles.Contains("Moderator") && userId != @property.UserId)
+                {
+                    return Unauthorized();
+                }
+
+                List<PropertyPhotos>? photos = _context.PropertiesPhotos.Where(photo => photo.PropertyId == id).ToList();
+
+                foreach (PropertyPhotos photo in photos)
+                {
+                    string fullPath = Path.Combine(Directory.GetCurrentDirectory(), photo.PhotoPath);
+                    if (System.IO.File.Exists(fullPath))
+                    {
+                        System.IO.File.Delete(fullPath);
+                    }
+                }
+
+                _context.PropertiesPhotos.RemoveRange(photos);
+                _context.Properties.Remove(@property);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return NoContent();
             }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
 
-            _context.Properties.Remove(@property);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+                return BadRequest(new { Message = "An error occurred while deleting the property.", Details = ex.Message });
+            }
         }
 
         private bool PropertyExists(Guid id)
         {
             return _context.Properties.Any(e => e.Id == id);
         }
+        #endregion
+        #region Photos
+        [HttpPost("{propertyId}/photos"), Authorize]
+        public async Task<IActionResult> UploadPhotos(Guid propertyId, string UserId, List<IFormFile> photos)
+        {
+            try
+            {
+                if (photos == null || photos.Count == 0)
+                {
+                    throw new Exception("No files were uploaded.");
+                }
 
+                var property = await _context.Properties.FindAsync(propertyId);
+                if (property == null)
+                {
+                    throw new Exception("Property not found.");
+                }
+
+                string photosPath = Path.Combine(Directory.GetCurrentDirectory(), "Photos");
+
+                if (!Directory.Exists(photosPath))
+                {
+                    Directory.CreateDirectory(photosPath);
+                }
+
+                var uploadedPhotos = new List<PropertyPhotos>();
+
+                foreach (IFormFile photo in photos)
+                {
+                    if (photo.Length > 0)
+                    {
+                        string[] allowedExtensions = new[] { ".jpg", ".png", ".jpeg" };
+                        string extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
+
+                        if (!allowedExtensions.Contains(extension))
+                        {
+                            throw new Exception("Unsupported file type.");
+                        }
+
+                        string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(photo.FileName);
+                        string filePath = Path.Combine(photosPath, uniqueFileName);
+                        using (FileStream stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await photo.CopyToAsync(stream);
+                        }
+
+                        PropertyPhotos propertyPhoto = new PropertyPhotos
+                        {
+                            Id = Guid.NewGuid(),
+                            PhotoPath = filePath,
+                            PropertyId = propertyId,
+                            UserId = UserId
+                        };
+                        uploadedPhotos.Add(propertyPhoto);
+                    }
+                }
+
+                _context.PropertiesPhotos.AddRange(uploadedPhotos);
+                await _context.SaveChangesAsync();
+                return Ok(new {Message = "Files uploaded and saved successfully!", Photos = uploadedPhotos });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = "An error occurred while creating the photos.", Details = ex.Message });
+            }
+        }
+        [HttpDelete("{photoId}"), Authorize]
+        public async Task<IActionResult> DeletePhoto(Guid photoId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var user = await _context.Users.FindAsync(userId);
+
+                if (user == null)
+                {
+                    throw new Exception("User not found");
+                }
+
+                var userRoles = await _userManager.GetRolesAsync(user);
+                
+                var photo = await _context.PropertiesPhotos.FindAsync(photoId);
+                if (photo == null)
+                {
+                    throw new Exception("Photo not found.");
+                }
+
+                if (!userRoles.Contains("Admin") && !userRoles.Contains("Moderator") && userId != photo.UserId)
+                {
+                    throw new Exception("User unauthorized");
+                }
+
+                var fullPath = Path.Combine(Directory.GetCurrentDirectory(), photo.PhotoPath);
+
+                if (System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                }
+
+                _context.PropertiesPhotos.Remove(photo);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok(new {Message = "Photo deleted successfully!" });
+            }
+            catch(Exception ex) 
+            {
+                await transaction.RollbackAsync();
+                return BadRequest(new { Message = "An error occurred while creating the photos.", Details = ex.Message });
+            }
+        }
+        #endregion
+        #region Requests
         public class PropertyPostRequest
         {
             public string Name { get; set; }
             public string Address { get; set; }
             public string Description { get; set; }
             public string[] Features { get; set; }
+            public List<IFormFile>? Photos { get; set; }
+            public string UserId { get; set; }
         }
 
         public class PropertyPutRequest
@@ -152,6 +345,10 @@ namespace RentAdvisor.Server.Controllers
             public string Address { get; set; }
             public string Description { get; set; }
             public string[] Features { get; set; }
+            public List<IFormFile>? Photos { get; set; }
+            public Guid? PhotoId { get; set; }
+            public string UserId { get; set; }
         }
+        #endregion
     }
 }
