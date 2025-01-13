@@ -21,14 +21,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             </div>
             <div className="property-right">
                 <div className="property-title">
-                    <h2 className="property-name">{property.name}</h2>
+                    <div className="property-name">{property.name}</div>
+                    <div className="property-address">{property.address}</div>
                 </div>
                 <div className="propertybody">
-                    <p className="property-address">{property.address}</p>
-                    <p className="property-description">{property.description}</p>
+                    {/* <p className="property-description">{property.description}</p> */}
                 </div>
                 <div className="property-features">
-                    <h3>Features:</h3>
                     <ul>
                         {property.features.map((feature, index) => (
                             <li key={index} className="property-feature">{feature}</li>

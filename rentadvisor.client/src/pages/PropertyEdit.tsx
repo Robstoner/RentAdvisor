@@ -79,49 +79,52 @@ const PropertyEdit: React.FC = () => {
   }
 
   return (
-    <div className="property-edit-container">
-      <h1>Edit Property</h1>
-      <form onSubmit={handleSubmit} className="property-edit-form">
-        <label htmlFor="name">Name</label>
-        <input 
-          type="text" 
-          id="name" 
-          name="name" 
-          value={property.name} 
-          onChange={handleChange} 
-          required 
-        />
+    <div className="create-container">
+      <div className='create-content'>
+        <p>Edit Property</p>
+        {error && <p className="error-message">{error}</p>}
+        <form onSubmit={handleSubmit} className="property-edit-form">
+          <label htmlFor="name">Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={property.name}
+            onChange={handleChange}
+            required
+          />
 
-        <label htmlFor="address">Address</label>
-        <input 
-          type="text" 
-          id="address" 
-          name="address" 
-          value={property.address} 
-          onChange={handleChange} 
-          required 
-        />
+          <label htmlFor="address">Address</label>
+          <input
+            type="text"
+            id="address"
+            name="address"
+            value={property.address}
+            onChange={handleChange}
+            required
+          />
 
-        <label htmlFor="description">Description</label>
-        <textarea 
-          id="description" 
-          name="description" 
-          value={property.description} 
-          onChange={handleChange} 
-          required 
-        ></textarea>
+          <label htmlFor="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            value={property.description}
+            onChange={handleChange}
+            required
+          ></textarea>
 
-        <label htmlFor="features">Features (comma separated)</label>
-        <input 
-          type="text" 
-          id="features" 
-          name="features" 
-          value={property.features.join(', ')} 
-          onChange={(e) => setProperty(prevProperty => prevProperty ? { ...prevProperty, features: e.target.value.split(',').map(f => f.trim()) } : null)} 
-        />
-
-        <button type="submit">Save Changes</button>
-      </form>
+          <label htmlFor="features">Features (comma separated)</label>
+          <textarea
+            id="features"
+            name="features"
+            value={property.features.join(', ')}
+            onChange={(e) => setProperty(prevProperty => prevProperty ? { ...prevProperty, features: e.target.value.split(',').map(f => f.trim()) } : null)}
+          ></textarea>
+          <div className='button-group'>
+            <button type="submit" disabled={loading}>{loading ? 'Editing...' : 'Edit Property'}</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

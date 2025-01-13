@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faCircle, faMessage, faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import axios from '../api/axiosConfig';
 import '../css/PropertyDetails.css';
 import '../css/PropertyCard.css';
@@ -256,11 +258,11 @@ const PropertyDetails: React.FC = () => {
                 {reviews.length > 0 ? (
                     reviews.map((review) => (
                         <div key={review.id} className="review-card">
+                             <p><FontAwesomeIcon icon={faUser} /> {review.userId}</p>
+                            <strong>Posted on:</strong> {new Date(review.createdAt).toLocaleDateString()}
                             <h4>{review.title}</h4>
                             <p className="review-description">{review.description}</p>
                             <p className="review-meta">
-                                <strong>By:</strong> {review.userId} <br />
-                                <strong>Posted on:</strong> {new Date(review.createdAt).toLocaleDateString()}
                             </p>
                             {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('Moderator') || currentUser?.id === review.userId ? (
                                 <button onClick={() => handleEditReview(review.id, review.userId)} className="edit-review-button">Edit Review</button>

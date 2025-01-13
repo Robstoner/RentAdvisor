@@ -40,6 +40,7 @@ const CreateProperty: React.FC = () => {
         <div className="create-container">
             <div className='create-content'>
                 <p>Create a New Property</p>
+                {/* TO DO: Make sure to attach user id to post req just like for the reviews post */}
                 {error && <p className="error-message">{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <label htmlFor="name">Name</label>
@@ -73,14 +74,13 @@ const CreateProperty: React.FC = () => {
                     ></textarea>
 
                     <label htmlFor="features">Features (comma separated)</label>
-                    <input
-                        type="text"
+                    <textarea
                         id="features"
                         value={features}
                         onChange={(e) => setFeatures(e.target.value)}
                         placeholder="e.g., Pool, Garden, Parking"
                         required
-                    />
+                    ></textarea>
 
                     <div className='button-group'>
                     <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create Property'}</button>
