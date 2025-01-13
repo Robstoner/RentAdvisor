@@ -12,8 +12,8 @@ using RentAdvisor.Server.Database;
 namespace RentAdvisor.Server.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    [Migration("20250113180950_Add UserId for every model")]
-    partial class AddUserIdforeverymodel
+    [Migration("20250113193353_Property photos")]
+    partial class Propertyphotos
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -193,14 +193,9 @@ namespace RentAdvisor.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("UserId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("Properties");
                 });
@@ -225,16 +220,11 @@ namespace RentAdvisor.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("UserId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("PropertyId");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("PropertiesPhotos");
                 });
@@ -406,14 +396,10 @@ namespace RentAdvisor.Server.Migrations
             modelBuilder.Entity("RentAdvisor.Server.Models.Entities.Property", b =>
                 {
                     b.HasOne("RentAdvisor.Server.Models.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Properties")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.HasOne("RentAdvisor.Server.Models.Entities.User", null)
-                        .WithMany("Properties")
-                        .HasForeignKey("UserId1");
 
                     b.Navigation("User");
                 });
@@ -427,14 +413,10 @@ namespace RentAdvisor.Server.Migrations
                         .IsRequired();
 
                     b.HasOne("RentAdvisor.Server.Models.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("PropertyPhotos")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.HasOne("RentAdvisor.Server.Models.Entities.User", null)
-                        .WithMany("PropertyPhotos")
-                        .HasForeignKey("UserId1");
 
                     b.Navigation("Property");
 
@@ -452,7 +434,7 @@ namespace RentAdvisor.Server.Migrations
                     b.HasOne("RentAdvisor.Server.Models.Entities.User", "User")
                         .WithMany("Reviews")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Property");

@@ -10,10 +10,8 @@ namespace RentAdvisor.Server.Models.Entities
         public string Description { get; set; }
         public string[] Features { get; set; }
         [JsonIgnore]
-
         public virtual ICollection<Review> Reviews { get; set; }
         [JsonIgnore]
-
         public virtual ICollection<PropertyPhotos> PropertyPhotos { get; set; }
         public string UserId { get; set; }
         [JsonIgnore]

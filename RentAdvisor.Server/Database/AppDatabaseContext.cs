@@ -17,5 +17,46 @@ namespace RentAdvisor.Server.Database
         public AppDatabaseContext(DbContextOptions<AppDatabaseContext> options) : base(options)
         {
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Property>()
+                .HasOne(p => p.User)
+                .WithMany(u => u.Properties)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Property>()
+                .HasMany(p => p.Reviews)
+                .WithOne(r => r.Property)
+                .HasForeignKey(r => r.PropertyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Property>()
+                .HasMany(p => p.PropertyPhotos)
+                .WithOne(pp => pp.Property)
+                .HasForeignKey(pp => pp.PropertyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PropertyPhotos>()
+                .HasOne(pp => pp.User)
+                .WithMany(u => u.PropertyPhotos)
+                .HasForeignKey(pp => pp.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<PropertyPhotos>()
+                .HasOne(pp => pp.Property)
+                .WithMany(p => p.PropertyPhotos)
+                .HasForeignKey(pp => pp.PropertyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.Reviews)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+        }
     }
 }
