@@ -129,6 +129,33 @@ namespace RentAdvisor.Server.Controllers
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                // Data validation
+                if (string.IsNullOrWhiteSpace(propertyRequest.Name))
+                {
+                    return BadRequest(new { Message = "Property name is required." });
+                }
+
+                if (string.IsNullOrWhiteSpace(propertyRequest.Address))
+                {
+                    return BadRequest(new { Message = "Property address is required." });
+                }
+
+                // Validate UserId
+                var user = await _context.Users.FindAsync(propertyRequest.UserId);
+                if (user == null)
+                {
+                    return BadRequest(new { Message = "Invalid UserId. The user does not exist." });
+                }
+
+                // Ensure property name is unique for the user
+                var existingProperty = await _context.Properties
+                    .Where(p => p.UserId == propertyRequest.UserId && p.Name == propertyRequest.Name)
+                    .FirstOrDefaultAsync();
+                if (existingProperty != null)
+                {
+                    return BadRequest(new { Message = "A property with the same name already exists for this user." });
+                }
+
                 var property = new Property
                 {
                     Id = Guid.NewGuid(),
