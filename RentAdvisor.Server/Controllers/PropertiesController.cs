@@ -170,6 +170,9 @@ namespace RentAdvisor.Server.Controllers
 
                 await UploadPhotos(property.Id, @propertyRequest.UserId, @propertyRequest.Photos);
 
+                user.Score += 6;
+                _context.Users.Update(user);
+
                 await transaction.CommitAsync();
 
                 return CreatedAtAction("GetProperty", new { id = @property.Id }, @property);
@@ -222,6 +225,14 @@ namespace RentAdvisor.Server.Controllers
 
                 _context.PropertiesPhotos.RemoveRange(photos);
                 _context.Properties.Remove(@property);
+
+                var propertyUser = await _context.Users.FindAsync(@property.UserId);
+                if(propertyUser != null)
+                {
+                    propertyUser.Score -= 6;
+                    _context.Users.Update(propertyUser);
+                }                  
+                                
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();

@@ -135,8 +135,12 @@ namespace RentAdvisor.Server.Controllers
             await _context.SaveChangesAsync();
 
             var user = await _context.Users.FindAsync(reviewRequest.UserId);
-            user.Score += 3;
-            _context.Users.Update(user);
+            if (user != null)
+            {
+                user.Score += 3;
+                _context.Users.Update(user);
+            }
+            
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetReview", new { id = review.Id }, review);
@@ -170,8 +174,13 @@ namespace RentAdvisor.Server.Controllers
             _context.Reviews.Remove(review);
             await _context.SaveChangesAsync();
 
-            user.Score -= 3;
-            _context.Users.Update(user);
+            var reviewUser = await _context.Users.FindAsync(review.UserId);
+            if (reviewUser != null)
+            {
+                reviewUser.Score -= 3;
+                _context.Users.Update(reviewUser);
+            }
+            
             await _context.SaveChangesAsync();
 
             return NoContent();
