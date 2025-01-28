@@ -30,7 +30,24 @@ namespace RentAdvisor.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Review>>> GetReview()
         {
-            return await _context.Reviews.ToListAsync();
+            try
+            {
+                // Filter reviews by the user's score
+                var reviews = await _context.Reviews
+                    .OrderByDescending(r => r.User.Score)
+                    .ToListAsync();
+
+                if (!reviews.Any())
+                {
+                    return NotFound(new { Message = "No reviews found for the given score threshold." });
+                }
+
+                return Ok(reviews);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = "An error occurred while fetching reviews.", Details = ex.Message });
+            }
         }
 
         // GET: api/Reviews/5
