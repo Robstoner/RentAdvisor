@@ -17,10 +17,14 @@ import MainLayout from './layout/MainLayout';
 
 export interface User {
     id: string;
-    name: string;
-    roles: string[];
+    userName: string;
+    email: string;
     score: number;
+    roles?: string[];  // Add roles if applicable
+    createdAt: string;
+    lastLogin: string;
 }
+
 
 function App() {
     
@@ -33,7 +37,19 @@ function App() {
     const fetchUser = async () => {
         try {
             const response = await axios.get('/user/current');
-            setUser(response.data);
+            const userData = response.data;
+            const mappedUser: User = {
+                id: userData.id,
+                userName: userData.userName,
+                email: userData.email,
+                score: userData.score,
+                roles: [], // Assuming roles are not provided in the response
+                createdAt: userData.createdAt,
+                lastLogin: userData.lastLogin
+            };
+    
+            setUser(mappedUser);
+            localStorage.setItem('userId', userData.id);
         } catch (error) {
             console.error('Error fetching user', error);
         }

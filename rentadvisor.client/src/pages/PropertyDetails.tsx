@@ -206,7 +206,6 @@ const PropertyDetails: React.FC = () => {
                     <p className="property-description">{property.description}</p>
                 </div>
                 <div className="property-features">
-                    <h3>Features:</h3>
                     <ul>
                         {property.features.map((feature, index) => (
                             <li key={index}>{feature}</li>

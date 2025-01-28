@@ -67,10 +67,10 @@
     margin-bottom: 10px;
   }
   
-  .button-group {
+  /* .button-group {
     display: flex;
     justify-content: center;
-  }
+  } */
   
   button {
     padding: 10px 20px;

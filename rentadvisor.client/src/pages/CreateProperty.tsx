@@ -1,31 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from '../api/axiosConfig';
-import '../css/CreateProperty.css';
 import { useNavigate } from 'react-router-dom';
+import '../css/CreateProperty.css'; 
 
 const CreateProperty: React.FC = () => {
     const [name, setName] = useState('');
     const [address, setAddress] = useState('');
     const [description, setDescription] = useState('');
     const [features, setFeatures] = useState<string>('');
+    const [images, setImages] = useState<File[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const storedUserId = localStorage.getItem('userId');
+        if (storedUserId) {
+            setUserId(storedUserId);
+        } else {
+            setError('User ID is required to create a property.');
+        }
+    }, []);
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            setImages(Array.from(e.target.files));
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
-        const propertyData = {
-            name,
-            address,
-            description,
-            features: features.split(',').map(feature => feature.trim())
-        };
+        // Prepare multipart/form-data payload
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('address', address);
+        formData.append('description', description);
+        formData.append('features', features.split(',').map(feature => feature.trim()).join(','));
+        if (userId) {
+            formData.append('userId', userId);
+        }
+
+        // Append each image to the form data
+        images.forEach((image, index) => {
+            formData.append(`images`, image); // Use a consistent key for multiple images
+        });
 
         try {
-            await axios.post('/api/Properties', propertyData);
+            await axios.post('/api/Properties', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             alert('Property created successfully!');
             navigate('/'); // Redirect to homepage or property list after creation
         } catch (error) {
@@ -40,7 +70,6 @@ const CreateProperty: React.FC = () => {
         <div className="create-container">
             <div className='create-content'>
                 <p>Create a New Property</p>
-                {/* TO DO: Make sure to attach user id to post req just like for the reviews post */}
                 {error && <p className="error-message">{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <label htmlFor="name">Name</label>
@@ -82,8 +111,17 @@ const CreateProperty: React.FC = () => {
                         required
                     ></textarea>
 
+                    <label htmlFor="images">Upload Images</label>
+                    <input
+                        type="file"
+                        id="images"
+                        multiple
+                        accept="image/*"
+                        onChange={handleImageChange}
+                    />
+
                     <div className='button-group'>
-                    <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create Property'}</button>
+                        <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create Property'}</button>
                     </div>
                 </form>
             </div>

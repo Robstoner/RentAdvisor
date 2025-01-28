@@ -1,4 +1,5 @@
 import "../css/PropertyCard.css";
+import placeholderImage from "../assets/bg.png";
 
 type Property = {
     id: string;
@@ -6,6 +7,7 @@ type Property = {
     address: string;
     description: string;
     features: string[];
+    images?: string[];
     createdAt: string;
     updatedAt: string;
 };
@@ -15,10 +17,19 @@ type PropertyCardProps = {
 };
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
+    const imageUrl =
+        property.images && property.images.length > 0
+            ? property.images[0]
+            : placeholderImage;
+    
     return (
         <div className="property-card">
-            <div className="property-left">
-            </div>
+            <div
+                className="property-left"
+                style={{
+                    backgroundImage: `url(${imageUrl})`,
+                }}
+            ></div>
             <div className="property-right">
                 <div className="property-title">
                     <div className="property-name">{property.name}</div>
