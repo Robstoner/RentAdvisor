@@ -64,8 +64,8 @@ namespace RentAdvisor.Server.Controllers
 
         // PUT: api/Properties/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}"), Authorize]
-        public async Task<IActionResult> PutProperty(Guid id, PropertyPutRequest propertyRequest)
+        [HttpPut("{propertyId}"), Authorize]
+        public async Task<IActionResult> PutProperty(Guid propertyId, PropertyPutRequest propertyRequest)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -84,7 +84,7 @@ namespace RentAdvisor.Server.Controllers
                     return Unauthorized();
                 }
 
-                if (id != propertyRequest.Id)
+                if (propertyId != propertyRequest.Id)
                 {
                     return BadRequest();
                 }
@@ -96,10 +96,9 @@ namespace RentAdvisor.Server.Controllers
                     Address = propertyRequest.Address,
                     Description = propertyRequest.Description,
                     Features = propertyRequest.Features,
+                    UserId = propertyRequest.UserId
                 };
-                if (propertyRequest.PhotoId != null)
-                    await DeletePhoto((Guid)propertyRequest.PhotoId);
-                await UploadPhotos(propertyRequest.Id, propertyRequest.UserId, @propertyRequest.Photos);
+
                 _context.Properties.Update(updatedProperty);
 
                 _context.Entry(@updatedProperty).State = EntityState.Modified;
@@ -110,7 +109,7 @@ namespace RentAdvisor.Server.Controllers
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                if (!PropertyExists(id))
+                if (!PropertyExists(propertyId))
                 {
                     return NotFound();
                 }
@@ -216,7 +215,7 @@ namespace RentAdvisor.Server.Controllers
         }
         #endregion
         #region Photos
-        [HttpPost("{propertyId}/photos"), Authorize]
+        [HttpPost("Photos/{propertyId}/photos"), Authorize]
         public async Task<IActionResult> UploadPhotos(Guid propertyId, string UserId, List<IFormFile> photos)
         {
             try
@@ -280,7 +279,7 @@ namespace RentAdvisor.Server.Controllers
                 return BadRequest(new { Message = "An error occurred while creating the photos.", Details = ex.Message });
             }
         }
-        [HttpDelete("{photoId}"), Authorize]
+        [HttpDelete("Photos/{photoId}"), Authorize]
         public async Task<IActionResult> DeletePhoto(Guid photoId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -345,8 +344,6 @@ namespace RentAdvisor.Server.Controllers
             public string Address { get; set; }
             public string Description { get; set; }
             public string[] Features { get; set; }
-            public List<IFormFile>? Photos { get; set; }
-            public Guid? PhotoId { get; set; }
             public string UserId { get; set; }
         }
         #endregion
