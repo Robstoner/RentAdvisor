@@ -215,6 +215,13 @@ namespace RentAdvisor.Server.Controllers
         }
         #endregion
         #region Photos
+        // GET: api/Properties/5
+        [HttpGet("Photos/{propertyId}")]
+        public async Task<ActionResult<IEnumerable<PropertyPhotos>>> GetPropertyPhotos(Guid propertyId)
+        {
+            return await _context.PropertiesPhotos.Where(p => p.PropertyId == propertyId).ToListAsync();
+        }
+
         [HttpPost("Photos/{propertyId}/photos"), Authorize]
         public async Task<IActionResult> UploadPhotos(Guid propertyId, string UserId, List<IFormFile> photos)
         {
@@ -262,7 +269,7 @@ namespace RentAdvisor.Server.Controllers
                         PropertyPhotos propertyPhoto = new PropertyPhotos
                         {
                             Id = Guid.NewGuid(),
-                            PhotoPath = filePath,
+                            PhotoPath = Path.Combine("Photos", uniqueFileName),
                             PropertyId = propertyId,
                             UserId = UserId
                         };
@@ -279,6 +286,7 @@ namespace RentAdvisor.Server.Controllers
                 return BadRequest(new { Message = "An error occurred while creating the photos.", Details = ex.Message });
             }
         }
+
         [HttpDelete("Photos/{photoId}"), Authorize]
         public async Task<IActionResult> DeletePhoto(Guid photoId)
         {
