@@ -64,8 +64,8 @@ namespace RentAdvisor.Server.Controllers
 
         // PUT: api/Properties/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}"), Authorize]
-        public async Task<IActionResult> PutProperty(Guid id, PropertyPutRequest propertyRequest)
+        [HttpPut("{propertyId}"), Authorize]
+        public async Task<IActionResult> PutProperty(Guid propertyId, PropertyPutRequest propertyRequest)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -84,7 +84,7 @@ namespace RentAdvisor.Server.Controllers
                     return Unauthorized();
                 }
 
-                if (id != propertyRequest.Id)
+                if (propertyId != propertyRequest.Id)
                 {
                     return BadRequest();
                 }
@@ -96,10 +96,9 @@ namespace RentAdvisor.Server.Controllers
                     Address = propertyRequest.Address,
                     Description = propertyRequest.Description,
                     Features = propertyRequest.Features,
+                    UserId = propertyRequest.UserId
                 };
-                if (propertyRequest.PhotoId != null)
-                    await DeletePhoto((Guid)propertyRequest.PhotoId);
-                await UploadPhotos(propertyRequest.Id, propertyRequest.UserId, @propertyRequest.Photos);
+
                 _context.Properties.Update(updatedProperty);
 
                 _context.Entry(@updatedProperty).State = EntityState.Modified;
@@ -110,7 +109,7 @@ namespace RentAdvisor.Server.Controllers
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                if (!PropertyExists(id))
+                if (!PropertyExists(propertyId))
                 {
                     return NotFound();
                 }
@@ -130,6 +129,33 @@ namespace RentAdvisor.Server.Controllers
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                // Data validation
+                if (string.IsNullOrWhiteSpace(propertyRequest.Name))
+                {
+                    return BadRequest(new { Message = "Property name is required." });
+                }
+
+                if (string.IsNullOrWhiteSpace(propertyRequest.Address))
+                {
+                    return BadRequest(new { Message = "Property address is required." });
+                }
+
+                // Validate UserId
+                var user = await _context.Users.FindAsync(propertyRequest.UserId);
+                if (user == null)
+                {
+                    return BadRequest(new { Message = "Invalid UserId. The user does not exist." });
+                }
+
+                // Ensure property name is unique for the user
+                var existingProperty = await _context.Properties
+                    .Where(p => p.UserId == propertyRequest.UserId && p.Name == propertyRequest.Name)
+                    .FirstOrDefaultAsync();
+                if (existingProperty != null)
+                {
+                    return BadRequest(new { Message = "A property with the same name already exists for this user." });
+                }
+
                 var property = new Property
                 {
                     Id = Guid.NewGuid(),
@@ -143,6 +169,9 @@ namespace RentAdvisor.Server.Controllers
                 await _context.SaveChangesAsync();
 
                 await UploadPhotos(property.Id, @propertyRequest.UserId, @propertyRequest.Photos);
+
+                user.Score += 6;
+                _context.Users.Update(user);
 
                 await transaction.CommitAsync();
 
@@ -196,6 +225,14 @@ namespace RentAdvisor.Server.Controllers
 
                 _context.PropertiesPhotos.RemoveRange(photos);
                 _context.Properties.Remove(@property);
+
+                var propertyUser = await _context.Users.FindAsync(@property.UserId);
+                if(propertyUser != null)
+                {
+                    propertyUser.Score -= 6;
+                    _context.Users.Update(propertyUser);
+                }                  
+                                
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
@@ -216,7 +253,14 @@ namespace RentAdvisor.Server.Controllers
         }
         #endregion
         #region Photos
-        [HttpPost("{propertyId}/photos"), Authorize]
+        // GET: api/Properties/5
+        [HttpGet("Photos/{propertyId}")]
+        public async Task<ActionResult<IEnumerable<PropertyPhotos>>> GetPropertyPhotos(Guid propertyId)
+        {
+            return await _context.PropertiesPhotos.Where(p => p.PropertyId == propertyId).ToListAsync();
+        }
+
+        [HttpPost("Photos/{propertyId}/photos"), Authorize]
         public async Task<IActionResult> UploadPhotos(Guid propertyId, string UserId, List<IFormFile> photos)
         {
             try
@@ -263,7 +307,7 @@ namespace RentAdvisor.Server.Controllers
                         PropertyPhotos propertyPhoto = new PropertyPhotos
                         {
                             Id = Guid.NewGuid(),
-                            PhotoPath = filePath,
+                            PhotoPath = Path.Combine("Photos", uniqueFileName),
                             PropertyId = propertyId,
                             UserId = UserId
                         };
@@ -280,7 +324,8 @@ namespace RentAdvisor.Server.Controllers
                 return BadRequest(new { Message = "An error occurred while creating the photos.", Details = ex.Message });
             }
         }
-        [HttpDelete("{photoId}"), Authorize]
+
+        [HttpDelete("Photos/{photoId}"), Authorize]
         public async Task<IActionResult> DeletePhoto(Guid photoId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -345,8 +390,6 @@ namespace RentAdvisor.Server.Controllers
             public string Address { get; set; }
             public string Description { get; set; }
             public string[] Features { get; set; }
-            public List<IFormFile>? Photos { get; set; }
-            public Guid? PhotoId { get; set; }
             public string UserId { get; set; }
         }
         #endregion
