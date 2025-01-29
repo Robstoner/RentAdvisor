@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCircle, faMessage, faEllipsis } from '@fortawesome/free-solid-svg-icons';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 import axios from '../api/axiosConfig';
 import '../css/PropertyDetails.css';
 import '../css/PropertyCard.css';
@@ -176,6 +176,7 @@ const PropertyDetails: React.FC = () => {
     const handleEditReview = (reviewId: string, userId: string) => {
         if (currentUser?.roles.includes('Admin') || currentUser?.roles.includes("Moderator") || currentUser?.id === userId) {
             // edit review
+            reviewId = reviewId + 'test'; 
         } else {
             alert('You do not have permission to edit this review.');
         }

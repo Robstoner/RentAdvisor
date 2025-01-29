@@ -1,8 +1,14 @@
 // axiosConfig.ts
 import axios from 'axios';
 
+const target = import.meta.env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${import.meta.env.ASPNETCORE_HTTPS_PORT}` :
+    import.meta.env.ASPNETCORE_URLS ? import.meta.env.ASPNETCORE_URLS.split(';')[0] : 'http://localhost:8080';
+
+// Make targer backend:8080 if NODE_ENV is production
+//const target = __NODE_ENV__ === "Production" ? 'backend:8080' : 'http:localhost:8080';
+
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8080'
+    baseURL: target,
 });
 
 axiosInstance.interceptors.request.use(

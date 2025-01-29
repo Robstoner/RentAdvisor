@@ -33,7 +33,7 @@ namespace RentAdvisor.Server
             {
                 options.AddPolicy("AllowSpecificOrigin",
                     builder => builder
-                        .WithOrigins("https://localhost:5173") // Update this to your React app's URL
+                        .WithOrigins("https://localhost:5173", "http://localhost:3000") // Update this to your React app's URL
                         .AllowAnyHeader()
                         .AllowAnyMethod());
             });
@@ -55,6 +55,12 @@ namespace RentAdvisor.Server
             builder.Services.AddAuthorization();
 
             var app = builder.Build();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
+                context.Database.Migrate();
+            }
 
             app.UseCors("AllowSpecificOrigin");
             app.UseDefaultFiles();

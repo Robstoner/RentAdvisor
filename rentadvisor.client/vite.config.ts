@@ -17,6 +17,10 @@ const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
 const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
 
 if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
+    // create folder if it doesn't exist
+    if (!fs.existsSync(baseFolder)) {
+        fs.mkdirSync(baseFolder, { recursive: true });
+    }
     if (0 !== child_process.spawnSync('dotnet', [
         'dev-certs',
         'https',
@@ -53,5 +57,8 @@ export default defineConfig({
             key: fs.readFileSync(keyFilePath),
             cert: fs.readFileSync(certFilePath),
         }
+    },
+    define: {
+        __NODE_ENV__: JSON.stringify(env.NODE_ENV),
     }
 })

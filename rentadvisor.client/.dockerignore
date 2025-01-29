@@ -1,0 +1,11 @@
+README.md
+build
+dist
+node_modules
+obj
+LICENSE
+package-lock.json
+.git
+.DS_Store
+.env
+.vscode

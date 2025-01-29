@@ -18,6 +18,7 @@ import MainLayout from './layout/MainLayout';
 export interface User {
     id: string;
     userName: string;
+    name: string;
     email: string;
     score: number;
     roles?: string[];  // Add roles if applicable
@@ -41,6 +42,7 @@ function App() {
             const mappedUser: User = {
                 id: userData.id,
                 userName: userData.userName,
+                name: userData.name,
                 email: userData.email,
                 score: userData.score,
                 roles: [], // Assuming roles are not provided in the response
