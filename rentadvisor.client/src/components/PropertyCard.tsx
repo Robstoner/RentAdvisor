@@ -70,4 +70,3 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 };
 
 export default PropertyCard;
-// like really love him
