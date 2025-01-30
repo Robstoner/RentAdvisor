@@ -64,7 +64,10 @@ body {
 
 /* Properties list styles */
 .properties-container {
-    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 4rem 0 4rem;
 }
 
 .properties-card {
@@ -86,6 +89,10 @@ body {
     .create-button {
         font-size: 0.9rem;
         padding: 8px 16px;
+    }
+
+    .properties-container {
+        margin: 0;
     }
 }
 

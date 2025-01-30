@@ -21,13 +21,17 @@
 
 .property-image {
     width: 100%;
-    height: 500px;
+    height: 350px;
     background-image: url('../assets/bg.png'); /* Adjust the URL */
     background-size: cover;
     background-position: center;
     border-radius: .5rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+    overflow: hidden;
 }
+
+
 
 /* .property-title {
 } */
@@ -217,6 +221,7 @@
 .delete-review-button:hover {
     background-color: #a71d2a;
 }
+
 
 /* Responsive Design */
 @media (max-width: 768px) {

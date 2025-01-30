@@ -5,24 +5,9 @@ import PropertyCard from "../components/PropertyCard";
 import "../css/PropertyCard.css";
 import "../css/Home.css"
 import "../css/CreateProperty.css"
-type Review = {
-    title: string;
-    description: string;
-    propertyId: string;
-    userId: string;
-}
 
-// Define the Property type
-type Property = {
-    id: string;
-    name: string;
-    address: string;
-    description: string;
-    features: string[];
-    reviews: Review[];
-    createdAt: string;
-    updatedAt: string;
-};
+import { Property } from "../App.tsx";
+
 
 const Home: React.FC = () => {
     const [properties, setProperties] = useState<Property[] | "">("");
@@ -34,6 +19,8 @@ const Home: React.FC = () => {
         const fetchProperties = async () => {
             try {
                 const response = await axios.get<Property[]>("/api/Properties");
+                console.log(response.data); // Debug API response
+
                 setProperties(response.data);
             } catch (error) {
                 console.error("Failed to fetch properties", error);

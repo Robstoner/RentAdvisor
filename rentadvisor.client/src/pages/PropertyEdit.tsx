@@ -3,24 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../api/axiosConfig';
 import '../css/CreateProperty.css';
 
-type Review = {
-  id: string;
-  propertyId: string;
-  userId: string;
-  title: string;
-  description: string;
-}
+import { Property } from "../App.tsx";
 
-type Property = {
-  id: string;
-  name: string;
-  address: string;
-  description: string;
-  features: string[];
-  reviews: Review[];
-  createdAt: string;
-  updatedAt: string;
-};
 
 const PropertyEdit: React.FC = () => {
   const { propertyId } = useParams<{ propertyId: string }>();
