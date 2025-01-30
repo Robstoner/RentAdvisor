@@ -139,6 +139,8 @@ namespace RentAdvisor.Server.Controllers
             {
                 user.Score += 3;
                 _context.Users.Update(user);
+                checkUpdateTitle(user.Id);
+                checkReviewBadges(user.Id);
             }
             
             await _context.SaveChangesAsync();
@@ -179,6 +181,7 @@ namespace RentAdvisor.Server.Controllers
             {
                 reviewUser.Score -= 3;
                 _context.Users.Update(reviewUser);
+                checkUpdateTitle(reviewUser.Id);
             }
             
             await _context.SaveChangesAsync();
@@ -189,6 +192,62 @@ namespace RentAdvisor.Server.Controllers
         private bool ReviewExists(Guid id)
         {
             return _context.Reviews.Any(e => e.Id == id);
+        }
+
+        private void checkUpdateTitle(string UserId)
+        {
+            var user = _context.Users.Find(UserId);
+            if (user == null)
+            {
+                return;
+            }
+            var titles = _context.Titles.ToList();
+            for (int i = 0; i < titles.Count; i++)
+            {
+                if (user.Score >= titles[i].RequiredPoints)
+                {
+                    user.TitleId = titles[i].Id;
+                }
+            }
+
+            _context.Users.Update(user);
+            _context.SaveChanges();
+        }
+
+        private void checkReviewBadges(string UserId)
+        {
+            var user = _context.Users.Find(UserId);
+            if (user == null)
+            {
+                return;
+            }
+            var reviews = _context.Reviews.Where(r => r.UserId == UserId).ToList();
+            var badges = _context.Badges.ToList();
+            foreach (var badge in badges)
+            {
+                if (badge.Name.Equals("First Review") && reviews.Count >= 1)
+                {
+                    user.Badges.Add(badge);
+                }
+                else if (badge.Name.Equals("Fifth Review") && reviews.Count >= 5)
+                {
+                    user.Badges.Add(badge);
+                }
+                else if (badge.Name.Equals("Tenth Review") && reviews.Count >= 10)
+                {
+                    user.Badges.Add(badge);
+                }
+                else if (badge.Name.Equals("50th Review") && reviews.Count >= 50)
+                {
+                    user.Badges.Add(badge);
+                }
+                else if (badge.Name.Equals("100th Review") && reviews.Count >= 100)
+                {
+                    user.Badges.Add(badge);
+                }
+            }
+            _context.Users.Update(user);
+            _context.SaveChanges();
         }
 
         public class ReviewPostRequest

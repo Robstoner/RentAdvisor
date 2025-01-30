@@ -9,6 +9,6 @@ namespace RentAdvisor.Server.Models.Entities
         public string Name { get; set; }
         public string Description { get; set; }
         [JsonIgnore]
-        public virtual User[] Users { get; set; }
+        public virtual ICollection<User> Users { get; set; }
     }
 }

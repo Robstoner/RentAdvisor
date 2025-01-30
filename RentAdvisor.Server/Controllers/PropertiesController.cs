@@ -172,6 +172,8 @@ namespace RentAdvisor.Server.Controllers
 
                 user.Score += 6;
                 _context.Users.Update(user);
+                checkUpdateTitle(user.Id);
+                checkPropertiesBadge(user.Id);
 
                 await transaction.CommitAsync();
 
@@ -231,6 +233,7 @@ namespace RentAdvisor.Server.Controllers
                 {
                     propertyUser.Score -= 6;
                     _context.Users.Update(propertyUser);
+                    checkUpdateTitle(propertyUser.Id);
                 }                  
                                 
                 await _context.SaveChangesAsync();
@@ -372,7 +375,66 @@ namespace RentAdvisor.Server.Controllers
             }
         }
         #endregion
-        #region Requests
+        #region Tools
+
+        private void checkUpdateTitle(string UserId)
+        {
+            var user = _context.Users.Find(UserId);
+            if (user == null)
+            {
+                return;
+            }
+            var titles = _context.Titles.ToList();
+            for (int i = 0; i < titles.Count; i++)
+            {
+                if (user.Score >= titles[i].RequiredPoints)
+                {
+                    user.TitleId = titles[i].Id;
+                }
+            }
+
+            _context.Users.Update(user);
+            _context.SaveChanges();
+        }
+
+        private void checkPropertiesBadge(string UserId)
+        {
+            var user = _context.Users.Find(UserId);
+            if (user == null)
+            {
+                return;
+            }
+            var userPropertiesCount = _context.Properties.Where(p => p.UserId == UserId).Count();
+            var badges = _context.Badges.ToList();
+
+            foreach (var badge in badges)
+            {
+                if (badge.Name.Equals("First Property") && userPropertiesCount >= 1)
+                {
+                    user.Badges.Add(badge);
+                }
+                else if (badge.Name.Equals("Fifth Property") && userPropertiesCount >= 5)
+                {
+                    user.Badges.Add(badge);
+                }
+                else if (badge.Name.Equals("Tenth Property") && userPropertiesCount >= 10)
+                {
+                    user.Badges.Add(badge);
+                }
+                else if (badge.Name.Equals("50th Property") && userPropertiesCount >= 50)
+                {
+                    user.Badges.Add(badge);
+                }
+                else if (badge.Name.Equals("100th Property") && userPropertiesCount >= 100)
+                {
+                    user.Badges.Add(badge);
+                }
+            }
+
+            _context.Users.Update(user);
+            _context.SaveChanges();
+        }
+
         public class PropertyPostRequest
         {
             public string Name { get; set; }

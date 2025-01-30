@@ -56,12 +56,6 @@ namespace RentAdvisor.Server
 
             var app = builder.Build();
 
-            using (var scope = app.Services.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
-                context.Database.Migrate();
-            }
-
             app.UseCors("AllowSpecificOrigin");
             app.UseDefaultFiles();
             app.UseStaticFiles();
@@ -84,6 +78,9 @@ namespace RentAdvisor.Server
 
             using (var scope = app.Services.CreateScope())
             {
+                var context = scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
+                context.Database.Migrate();
+
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
                 var roles = new[] { "Admin", "Moderator", "PropertyOwner" };
@@ -96,12 +93,45 @@ namespace RentAdvisor.Server
                     }
                 }
 
+                if (!context.Badges.Any())
+                {
+                    var badges = new[]
+                    {
+                        new Badge { Name = "First Review", Description = "You submitted your first review." },
+                        new Badge { Name = "Fifth Review", Description = "You submitted your fifth review." },
+                        new Badge { Name = "Tenth Review", Description = "You uploaded your tenth review." },
+                        new Badge { Name = "50th Review", Description = "You uploaded your 50th review." },
+                        new Badge { Name = "100th Review", Description = "You uploaded your 50th review." },
+
+                        new Badge { Name = "First Property", Description = "You submitted your first property." },
+                        new Badge { Name = "Fifth Property", Description = "You uploaded your fifth property." },
+                        new Badge { Name = "Tenth Property", Description = "You uploaded your tenth property." },
+                        new Badge { Name = "50th Property", Description = "You uploaded your 50th property." },
+                        new Badge { Name = "100th Property", Description = "You uploaded your 100th Property." },
+                    };
+                    await context.Badges.AddRangeAsync(badges);
+                    await context.SaveChangesAsync();
+                }
+
+                if (!context.Titles.Any())
+                {
+                    var titles = new[]
+                    {
+                        new Title { Id = new Guid("caabb5a5-9ddf-4b67-aa52-dafe7eef748a"), Name = "Newcommer", RequiredPoints = 0 },
+                        new Title { Id = new Guid("caabb5a5-9ddf-4b67-aa52-dafe7eef748b"), Name = "Beginner", RequiredPoints = 9 },
+                        new Title { Id = new Guid("caabb5a5-9ddf-4b67-aa52-dafe7eef748c"), Name = "Intermediate", RequiredPoints = 35 },
+                        new Title { Id = new Guid("caabb5a5-9ddf-4b67-aa52-dafe7eef748d"), Name = "Advanced", RequiredPoints = 100 }
+                    };
+                    await context.Titles.AddRangeAsync(titles);
+                    await context.SaveChangesAsync();
+                }
+
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 
                 // Create one admin user, one moderator user and one normal user
                 var users = new[]
                 {
-                    new { UserName = "admin@example.com", Email = "admin@example.com", Password = "Admin@123", Role = "Admin" },
+                    new { UserName = "admin@example.com", Email = "admin@example.com", Password = "Admin@123", Role = "Admin"},
                     new { UserName = "moderator@example.com", Email = "moderator@example.com", Password = "Moderator@123", Role = "Moderator" },
                     new { UserName = "propertyowner@example.com", Email = "propertyowner@example.com", Password = "PropertyOwner@123", Role = "PropertyOwner" },
                     new { UserName = "user@example.com", Email = "user@example.com", Password = "User@123", Role = "" }
@@ -116,7 +146,9 @@ namespace RentAdvisor.Server
                         {
                             UserName = userInfo.UserName,
                             Email = userInfo.Email,
-                            EmailConfirmed = true
+                            EmailConfirmed = true,
+                            TitleId = new Guid("caabb5a5-9ddf-4b67-aa52-dafe7eef748a")
+
                         };
 
                         var result = await userManager.CreateAsync(user, userInfo.Password);

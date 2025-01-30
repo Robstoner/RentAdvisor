@@ -13,6 +13,9 @@ namespace RentAdvisor.Server.Models.Entities
         public virtual ICollection<Property> Properties { get; set; }
         [JsonIgnore]
         public virtual ICollection<PropertyPhotos> PropertyPhotos { get; set; }
+        public virtual ICollection<Badge> Badges { get; set; }
+        public Guid TitleId { get; set; }
+        public virtual Title Title { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime LastUpdatedAt { get; set; } = DateTime.UtcNow;
         public DateTime lastLogin { get; set; } = DateTime.UtcNow;

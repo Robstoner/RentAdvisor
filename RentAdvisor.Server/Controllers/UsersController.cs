@@ -8,14 +8,14 @@ using System.Security.Claims;
 
 namespace Discussion_Forum.Server.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
         private readonly AppDatabaseContext _context;
         private readonly UserManager<User> _userManager;
 
-        public UserController(AppDatabaseContext context, UserManager<User> userManager)
+        public UsersController(AppDatabaseContext context, UserManager<User> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -175,7 +175,7 @@ namespace Discussion_Forum.Server.Controllers
         //    return NoContent();
         //}
 
-        [HttpGet("/roles"), Authorize]
+        [HttpGet("roles"), Authorize]
         public async Task<ActionResult<IEnumerable<IdentityRole>>> GetAllRoles()
         {
             var roles = await _context.Roles.ToListAsync();

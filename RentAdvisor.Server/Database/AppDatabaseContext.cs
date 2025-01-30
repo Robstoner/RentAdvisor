@@ -10,6 +10,8 @@ namespace RentAdvisor.Server.Database
         public DbSet<Property> Properties { get; set; } = default!;
         public DbSet<Review> Reviews { get; set; } = default!;
         public DbSet<PropertyPhotos> PropertiesPhotos { get; set; } = default!;
+        public DbSet<Badge> Badges { get; set; } = default!;
+        public DbSet<Title> Titles { get; set; } = default!;
 
         public AppDatabaseContext() : base()
         {
@@ -57,6 +59,16 @@ namespace RentAdvisor.Server.Database
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Badges)
+                .WithMany(b => b.Users)
+                .UsingEntity(j => j.ToTable("UserBadges"));
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Title)
+                .WithMany(t => t.Users)
+                .HasForeignKey(u => u.TitleId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }
