@@ -34,7 +34,7 @@ namespace RentAdvisor.Server.Database
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Property>()
-                .HasMany(p => p.PropertyPhotos)
+                .HasMany(p => p.Photos)
                 .WithOne(pp => pp.Property)
                 .HasForeignKey(pp => pp.PropertyId)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -47,7 +47,7 @@ namespace RentAdvisor.Server.Database
 
             modelBuilder.Entity<PropertyPhotos>()
                 .HasOne(pp => pp.Property)
-                .WithMany(p => p.PropertyPhotos)
+                .WithMany(p => p.Photos)
                 .HasForeignKey(pp => pp.PropertyId)
                 .OnDelete(DeleteBehavior.Cascade);
 

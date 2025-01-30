@@ -260,7 +260,7 @@ namespace RentAdvisor.Server.Controllers
             return await _context.PropertiesPhotos.Where(p => p.PropertyId == propertyId).ToListAsync();
         }
 
-        [HttpPost("Photos/{propertyId}/photos"), Authorize]
+        [HttpPost("Photos/{propertyId}"), Authorize]
         public async Task<IActionResult> UploadPhotos(Guid propertyId, string UserId, List<IFormFile> photos)
         {
             try
