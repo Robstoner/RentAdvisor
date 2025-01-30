@@ -21,10 +21,40 @@ export interface User {
     name: string;
     email: string;
     score: number;
-    roles?: string[];  // Add roles if applicable
+    roles?: string[]; 
     createdAt: string;
     lastLogin: string;
 }
+
+export type Review = {
+    id: string;
+    title: string;
+    description: string;
+    propertyId: string;
+    userId: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export type Photo = {
+    id: string;
+    photoPath: string;
+    propertyId: string;
+    userId: string;
+    addedAt: string;
+};
+
+export type Property = {
+    id: string;
+    name: string;
+    address: string;
+    description: string;
+    features: string[];
+    photos?: Photo[];
+    reviews: Review[];
+    createdAt: string;
+    updatedAt: string;
+};
 
 
 function App() {

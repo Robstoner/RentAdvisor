@@ -47,7 +47,7 @@ const CreateProperty: React.FC = () => {
 
         // Append each image to the form data
         images.forEach((image) => {
-            formData.append(`images`, image); // Use a consistent key for multiple images
+            formData.append(`photos`, image); // Use a consistent key for multiple images
         });
 
         try {

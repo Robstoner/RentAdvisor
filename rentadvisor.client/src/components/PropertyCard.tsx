@@ -1,35 +1,50 @@
 import "../css/PropertyCard.css";
 import placeholderImage from "../assets/bg.png";
+import { Property } from "../App.tsx"
+import axios from "../api/axiosConfig.ts"
+import { useEffect, useState } from "react";
 
-type Property = {
-    id: string;
-    name: string;
-    address: string;
-    description: string;
-    features: string[];
-    images?: string[];
-    createdAt: string;
-    updatedAt: string;
-};
+const GET_PHOTO_URL = "api/";
 
 type PropertyCardProps = {
     property: Property;
 };
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
-    const imageUrl =
-        property.images && property.images.length > 0
-            ? property.images[0]
-            : placeholderImage;
+
+    const [imageUrl, setImageUrl] = useState<string>(placeholderImage);
+
+    useEffect(() => {
+        if (property.photos && property.photos.length > 0) {
+            fetchImage(property.photos[0].id);
+        }
+    }, [property.photos]);
+
+    const fetchImage = async (photoId: string) => {
+        try {
+            const response = await axios.get(`/api/Properties/photos/${photoId}`, {
+                responseType: "blob",
+            });
+            const imageBlob = new Blob([response.data], { type: response.headers["content-type"] });
+            const imageObjectURL = URL.createObjectURL(imageBlob);
+            setImageUrl(imageObjectURL);
+        } catch (error) {
+            console.error("Error fetching image:", error);
+        }
+    };
+    console.log(imageUrl);
     
     return (
         <div className="property-card">
             <div
-                className="property-left"
-                style={{
-                    backgroundImage: `url(${imageUrl})`,
-                }}
-            ></div>
+                className="property-left">
+                <div className="property-image"
+                    style={{
+                        backgroundImage: `url(${imageUrl})`,
+                    }}
+                >
+                </div>
+            </div>
             <div className="property-right">
                 <div className="property-title">
                     <div className="property-name">{property.name}</div>
@@ -55,3 +70,4 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 };
 
 export default PropertyCard;
+// like really love him

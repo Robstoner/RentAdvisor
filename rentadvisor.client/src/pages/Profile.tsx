@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { User } from '../App';
 import '../css/Profile.css';
 import axios from '../api/axiosConfig';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
+
+import { User } from '../App.tsx';
 
 const Profile: React.FC = () => {
     const { userId } = useParams<{ userId: string }>();

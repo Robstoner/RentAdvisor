@@ -8,7 +8,7 @@ import axios from '../api/axiosConfig';
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
 
 
-import { User } from '../App';
+import { User } from '../App.tsx';
 
 interface NavbarProps {
   user: User | null;

@@ -6,32 +6,10 @@ import axios from '../api/axiosConfig';
 import '../css/PropertyDetails.css';
 import '../css/PropertyCard.css';
 
-type Review = {
-    id: string;
-    title: string;
-    description: string;
-    userId: string;
-    propertyId: string;
-    createdAt: string;
-    updatedAt: string;
-};
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
 
-type Property = {
-    id: string;
-    name: string;
-    address: string;
-    description: string;
-    features: string[];
-    createdAt: string;
-    updatedAt: string;
-};
-
-type User = {
-    id: string;
-    name: string;
-    email: string;
-    roles: string[];
-};
+import { User, Property, Review } from "../App.tsx";
 
 const PropertyDetails: React.FC = () => {
     const { propertyId } = useParams<{ propertyId: string }>();
@@ -45,6 +23,7 @@ const PropertyDetails: React.FC = () => {
     });
     const [submittingReview, setSubmittingReview] = useState<boolean>(false);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [imageUrls, setImageUrls] = useState<string[]>([]);
     const navigate = useNavigate();
 
     // Fetch current user information
@@ -66,11 +45,29 @@ const PropertyDetails: React.FC = () => {
     useEffect(() => {
         const fetchPropertyDetails = async () => {
             try {
-                const [propertyResponse, reviewsResponse] = await Promise.all([
-                    axios.get<Property>(`/api/Properties/${propertyId}`),
-                    axios.get<Review[]>(`/api/Properties/${propertyId}/Reviews`)
-                ]);
+                const propertyResponse = await axios.get<Property>(`/api/Properties/${propertyId}`);
                 setProperty(propertyResponse.data);
+
+                // Fetch images for all photos
+                if (propertyResponse.data.photos && propertyResponse.data.photos.length > 0) {
+                    const imagePromises = propertyResponse.data.photos.map(async (photo) => {
+                        try {
+                            const response = await axios.get(`/api/Properties/photos/${photo.id}`, {
+                                responseType: "blob",
+                            });
+                            return URL.createObjectURL(new Blob([response.data]));
+                        } catch (error) {
+                            console.error("Error fetching image:", error);
+                            return null;
+                        }
+                    });
+
+                    const images = await Promise.all(imagePromises);
+                    setImageUrls(images.filter((img) => img !== null) as string[]);
+                }
+
+                // Fetch reviews
+                const reviewsResponse = await axios.get<Review[]>(`/api/Properties/${propertyId}/Reviews`);
                 setReviews(reviewsResponse.data);
             } catch (error) {
                 setError('Failed to fetch property details or reviews.');
@@ -82,8 +79,6 @@ const PropertyDetails: React.FC = () => {
 
         if (propertyId) {
             fetchPropertyDetails();
-            console.log(currentUser);
-
         }
     }, [propertyId]);
 
@@ -176,7 +171,7 @@ const PropertyDetails: React.FC = () => {
     const handleEditReview = (reviewId: string, userId: string) => {
         if (currentUser?.roles.includes('Admin') || currentUser?.roles.includes("Moderator") || currentUser?.id === userId) {
             // edit review
-            reviewId = reviewId + 'test'; 
+            reviewId = reviewId + 'test';
         } else {
             alert('You do not have permission to edit this review.');
         }
@@ -194,11 +189,30 @@ const PropertyDetails: React.FC = () => {
         return <div>Property not found</div>;
     }
 
+    const responsive = {
+        superLargeDesktop: { breakpoint: { max: 4000, min: 1024 }, items: 3 },
+        desktop: { breakpoint: { max: 1024, min: 768 }, items: 2 },
+        tablet: { breakpoint: { max: 768, min: 480 }, items: 1 },
+        mobile: { breakpoint: { max: 480, min: 0 }, items: 1 }
+    };
+
     return (
         <div className="main-container">
 
             <div className='top-content'>
-                <div className='property-image'></div>
+                <div className='property-image-container'>
+                {imageUrls.length > 0 ? (
+                    <Carousel responsive={responsive} infinite autoPlay autoPlaySpeed={3000} showDots arrows>
+                        {imageUrls.map((image, index) => (
+                            <div key={index} className="carousel-slide">
+                                <img src={image} alt={`Property Image ${index + 1}`} className="property-image" />
+                            </div>
+                        ))}
+                    </Carousel>
+                ) : (
+                    <p>No images available</p>
+                )}
+                </div>
                 <div className='property-title'>
                     <h1 className="property-name">{property.name}</h1>
                 </div>
@@ -258,7 +272,7 @@ const PropertyDetails: React.FC = () => {
                 {reviews.length > 0 ? (
                     reviews.map((review) => (
                         <div key={review.id} className="review-card">
-                             <p><FontAwesomeIcon icon={faUser} /> {review.userId}</p>
+                            <p><FontAwesomeIcon icon={faUser} /> {review.userId}</p>
                             <strong>Posted on:</strong> {new Date(review.createdAt).toLocaleDateString()}
                             <h4>{review.title}</h4>
                             <p className="review-description">{review.description}</p>
