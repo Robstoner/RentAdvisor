@@ -254,10 +254,27 @@ namespace RentAdvisor.Server.Controllers
         #endregion
         #region Photos
         // GET: api/Properties/5
-        [HttpGet("Photos/{propertyId}")]
-        public async Task<ActionResult<IEnumerable<PropertyPhotos>>> GetPropertyPhotos(Guid propertyId)
+        [HttpGet("Photos/{photoId}")]
+        public async Task<ActionResult> GetPropertyPhoto(Guid photoId)
         {
-            return await _context.PropertiesPhotos.Where(p => p.PropertyId == propertyId).ToListAsync();
+            string? photoPath = await _context.PropertiesPhotos.Where(p => p.Id == photoId).Select(p => p.PhotoPath).FirstOrDefaultAsync();
+
+            if (string.IsNullOrEmpty(photoPath))
+            {
+                return NotFound("Photo not found.");
+            }
+
+            string? fileExtension = Path.GetExtension(photoPath)?.ToLower();
+            string mimeType = fileExtension switch
+            {
+                ".jpeg" => "image/jpeg",
+                ".jpg" => "image/jpeg",
+                ".png" => "image/png",
+                _ => "application/octet-stream"
+            };
+
+            var fileStream = new FileStream(photoPath, FileMode.Open, FileAccess.Read);
+            return File(fileStream, mimeType);
         }
 
         [HttpPost("Photos/{propertyId}"), Authorize]
