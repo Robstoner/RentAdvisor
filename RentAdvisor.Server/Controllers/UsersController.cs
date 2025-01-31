@@ -60,6 +60,8 @@ namespace Discussion_Forum.Server.Controllers
             obfuscatedUser.Name = user.UserName;
             obfuscatedUser.Score = user.Score;
             obfuscatedUser.Roles = await _userManager.GetRolesAsync(user);
+            obfuscatedUser.Title = user.Title;
+            obfuscatedUser.Badges = user.Badges;
 
             return Ok(obfuscatedUser);
         }
@@ -73,13 +75,15 @@ namespace Discussion_Forum.Server.Controllers
             {
                 return NotFound();
             }
-
+            
             var obfuscatedUser = new ObfuscatedUser();
             obfuscatedUser.Id = user.Id;
             obfuscatedUser.Email = user.Email;
             obfuscatedUser.Name = user.UserName;
             obfuscatedUser.Score = user.Score;
             obfuscatedUser.Roles = await _userManager.GetRolesAsync(user);
+            obfuscatedUser.Title = user.Title;
+            obfuscatedUser.Badges = user.Badges;
 
             return Ok(obfuscatedUser);
         }
@@ -194,6 +198,8 @@ namespace Discussion_Forum.Server.Controllers
             public string Email { get; set; }
             public int Score { get; set; }
             public IList<string> Roles { get; set; }
+            public ICollection<Badge> Badges { get; set; }
+            public Title Title { get; set; }
         }
     }
 }
