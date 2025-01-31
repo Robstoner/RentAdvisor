@@ -58,7 +58,7 @@ const Navbar: React.FC<NavbarProps> = ({ user, setUser }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const response = await axios.get('/user/current', {
+          const response = await axios.get('api/Users/current', {
             headers: {
               Authorization: `Bearer ${token}`,
             },

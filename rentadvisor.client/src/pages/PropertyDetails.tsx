@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from '../api/axiosConfig';
 import '../css/PropertyDetails.css';
 import '../css/PropertyCard.css';
@@ -14,23 +14,33 @@ import { User, Property, Review } from "../App.tsx";
 const PropertyDetails: React.FC = () => {
     const { propertyId } = useParams<{ propertyId: string }>();
     const [property, setProperty] = useState<Property | null>(null);
+
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+    const [imageUrls, setImageUrls] = useState<string[]>([]);
+
+    const [submittingReview, setSubmittingReview] = useState<boolean>(false);
+    const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
     const [newReview, setNewReview] = useState<{ title: string; description: string }>({
         title: '',
         description: ''
     });
-    const [submittingReview, setSubmittingReview] = useState<boolean>(false);
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [imageUrls, setImageUrls] = useState<string[]>([]);
+    const [editedReview, setEditedReview] = useState<{ title: string; description: string }>({
+        title: '',
+        description: ''
+    });
+
     const navigate = useNavigate();
 
     // Fetch current user information
     useEffect(() => {
         const fetchCurrentUser = async () => {
             try {
-                const response = await axios.get<User>('/User/current');
+                const response = await axios.get<User>('api/Users/current');
                 setCurrentUser(response.data);
             } catch (error) {
                 setError('Failed to fetch current user information.');
@@ -168,12 +178,50 @@ const PropertyDetails: React.FC = () => {
     };
 
     // Handle review edit
-    const handleEditReview = (reviewId: string, userId: string) => {
-        if (currentUser?.roles.includes('Admin') || currentUser?.roles.includes("Moderator") || currentUser?.id === userId) {
-            // edit review
-            reviewId = reviewId + 'test';
+    const handleEditReview = (review: Review) => {
+        if (
+            currentUser?.roles.includes('Admin') ||
+            currentUser?.roles.includes('Moderator') ||
+            currentUser?.id === review.userId
+        ) {
+            setEditingReviewId(review.id);
+            setEditedReview({ title: review.title, description: review.description });
         } else {
             alert('You do not have permission to edit this review.');
+        }
+    };
+
+    const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setEditedReview((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleEditSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingReviewId) return;
+
+        try {
+            await axios.put(`/api/Reviews/${editingReviewId}`, {
+                ...editedReview,
+                id: editingReviewId,
+                title: editedReview.title,
+                description: editedReview.description,
+                userId: currentUser?.id,
+                propertyId: propertyId,
+            });
+
+            // Update the review list
+            setReviews((prevReviews) =>
+                prevReviews.map((review) =>
+                    review.id === editingReviewId ? { ...review, ...editedReview } : review
+                )
+            );
+
+            // Reset editing state
+            setEditingReviewId(null);
+            setEditedReview({ title: '', description: '' });
+        } catch (error) {
+            console.error('Error updating review:', error);
         }
     };
 
@@ -201,17 +249,17 @@ const PropertyDetails: React.FC = () => {
 
             <div className='top-content'>
                 <div className='property-image-container'>
-                {imageUrls.length > 0 ? (
-                    <Carousel responsive={responsive} infinite autoPlay autoPlaySpeed={3000} showDots arrows>
-                        {imageUrls.map((image, index) => (
-                            <div key={index} className="carousel-slide">
-                                <img src={image} alt={`Property Image ${index + 1}`} className="property-image" />
-                            </div>
-                        ))}
-                    </Carousel>
-                ) : (
-                    <p>No images available</p>
-                )}
+                    {imageUrls.length > 0 ? (
+                        <Carousel responsive={responsive} infinite autoPlay autoPlaySpeed={3000} showDots arrows>
+                            {imageUrls.map((image, index) => (
+                                <div key={index} className="carousel-slide">
+                                    <img src={image} alt={`Property Image ${index + 1}`} className="property-image" />
+                                </div>
+                            ))}
+                        </Carousel>
+                    ) : (
+                        <p>No images available</p>
+                    )}
                 </div>
                 <div className='property-title'>
                     <h1 className="property-name">{property.name}</h1>
@@ -274,16 +322,47 @@ const PropertyDetails: React.FC = () => {
                         <div key={review.id} className="review-card">
                             <p><FontAwesomeIcon icon={faUser} /> {review.userId}</p>
                             <strong>Posted on:</strong> {new Date(review.createdAt).toLocaleDateString()}
-                            <h4>{review.title}</h4>
-                            <p className="review-description">{review.description}</p>
-                            <p className="review-meta">
-                            </p>
-                            {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('Moderator') || currentUser?.id === review.userId ? (
-                                <button onClick={() => handleEditReview(review.id, review.userId)} className="edit-review-button">Edit Review</button>
-                            ) : null}
-                            {currentUser?.roles.includes('Admin') || currentUser?.roles.includes('Moderator') || currentUser?.id === review.userId ? (
-                                <button onClick={() => handleDeleteReview(review.id, review.userId)} className="delete-review-button">Delete Review</button>
-                            ) : null}
+
+                            {editingReviewId === review.id ? (
+                                <form onSubmit={handleEditSubmit} className="edit-review-form">
+                                    <input
+                                        type="text"
+                                        name="title"
+                                        value={editedReview.title}
+                                        onChange={handleEditInputChange}
+                                        required
+                                    />
+                                    <textarea
+                                        name="description"
+                                        value={editedReview.description}
+                                        onChange={handleEditInputChange}
+                                        required
+                                    />
+                                    <div className='edit-review-buttons'>
+                                        <button type="submit">Save</button>
+                                        <button type="button" onClick={() => setEditingReviewId(null)}>Cancel</button>
+                                    </div>
+                                </form>
+                            ) : (
+                                <>
+                                    <h4>{review.title}</h4>
+                                    <p className="review-description">{review.description}</p>
+                                    {currentUser && (
+                                        <div className="review-actions">
+                                            {(currentUser.roles.includes('Admin') || currentUser.roles.includes('Moderator') || currentUser.id === review.userId) && (
+                                                <>
+                                                    <button onClick={() => handleEditReview(review)} className="edit-review-button">
+                                                        <FontAwesomeIcon icon={faEdit} /> Edit
+                                                    </button>
+                                                    <button onClick={() => handleDeleteReview(review.id, review.userId)} className="delete-review-button">
+                                                        <FontAwesomeIcon icon={faTrash} /> Delete
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
                     ))
                 ) : (

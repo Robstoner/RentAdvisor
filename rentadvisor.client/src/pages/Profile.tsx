@@ -17,7 +17,7 @@ const Profile: React.FC = () => {
 
     const fetchUser = async () => {
         try {
-            const response = await axios.get(`/user/${userId}`);
+            const response = await axios.get(`api/Users/${userId}`);
             setUser(response.data);
         } catch (error) {
             console.error('Error fetching user:', error);
@@ -28,7 +28,7 @@ const Profile: React.FC = () => {
 
     const fetchCurrentUser = async () => {
         try {
-            const response = await axios.get('user/current');
+            const response = await axios.get('api/Users/current');
             setCurrentUser(response.data);
         } catch (error) {
             console.error('Error fetching current user:', error);
@@ -37,7 +37,7 @@ const Profile: React.FC = () => {
 
     const fetchAvailableRoles = async () => {
         try {
-            const response = await axios.get('/roles');
+            const response = await axios.get('/api/Users/roles');
             const rolesString = response.data.map((role: any) => role.name);
             setAvailableRoles(rolesString);
         } catch (error) {
@@ -58,7 +58,7 @@ const Profile: React.FC = () => {
         if (!user) return;
 
         try {
-            const response = await axios.delete(`/user/${userId}/role`, {
+            const response = await axios.delete(`api/Users/${userId}/role`, {
                 headers: { 'Content-Type': 'application/json-patch+json' },
                 data: JSON.stringify(role),
             });
@@ -73,7 +73,7 @@ const Profile: React.FC = () => {
         if (!user || !selectedRole) return;
 
         try {
-            const response = await axios.post(`/user/${userId}/role`,
+            const response = await axios.post(`api/Users/${userId}/role`,
                 JSON.stringify(role),
                 { headers: { 'Content-Type': 'application/json-patch+json' } }
             );

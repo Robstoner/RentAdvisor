@@ -67,7 +67,7 @@ function App() {
 
     const fetchUser = async () => {
         try {
-            const response = await axios.get('/user/current');
+            const response = await axios.get('api/Users/current');
             const userData = response.data;
             const mappedUser: User = {
                 id: userData.id,
