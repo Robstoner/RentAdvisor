@@ -67,9 +67,9 @@ namespace RentAdvisor.Server.Controllers
         // PUT: api/Reviews/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}"), Authorize]
-        public async Task<IActionResult> PutReview(Guid id, Review review)
+        public async Task<IActionResult> PutReview(Guid id, ReviewPutRequest reviewrequest)
         {
-            if (id != review.Id)
+            if (id != reviewrequest.Id)
             {
                 return BadRequest();
             }
@@ -84,13 +84,22 @@ namespace RentAdvisor.Server.Controllers
 
             var userRoles = await _userManager.GetRolesAsync(user);
 
-            if (!userRoles.Contains("Admin") && !userRoles.Contains("Moderator") && userId != review.UserId)
+            if (!userRoles.Contains("Admin") && !userRoles.Contains("Moderator") && userId != reviewrequest.UserId)
             {
                 return Unauthorized();
             }
 
-            _context.Reviews.Update(review);
-            _context.Entry(review).State = EntityState.Modified;
+            var updatedReview = new Review
+            {
+                Id = reviewrequest.Id,
+                Title = reviewrequest.Title,
+                Description = reviewrequest.Description,
+                UserId = reviewrequest.UserId,
+                PropertyId = reviewrequest.PropertyId
+            };
+
+            _context.Reviews.Update(updatedReview);
+            _context.Entry(updatedReview).State = EntityState.Modified;
 
             try
             {
@@ -248,6 +257,15 @@ namespace RentAdvisor.Server.Controllers
             }
             _context.Users.Update(user);
             _context.SaveChanges();
+        }
+
+        public class ReviewPutRequest
+        {
+            public Guid Id { get; set; }
+            public string Title { get; set; }
+            public string Description { get; set; }
+            public string UserId { get; set; }
+            public Guid PropertyId { get; set; }
         }
 
         public class ReviewPostRequest
