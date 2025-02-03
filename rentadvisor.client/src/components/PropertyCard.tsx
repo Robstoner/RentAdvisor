@@ -1,10 +1,8 @@
 import "../css/PropertyCard.css";
-import placeholderImage from "../assets/bg.png";
+import placeholderImage from "../assets/bg.jpg";
 import { Property } from "../App.tsx"
 import axios from "../api/axiosConfig.ts"
 import { useEffect, useState } from "react";
-
-const GET_PHOTO_URL = "api/";
 
 type PropertyCardProps = {
     property: Property;
