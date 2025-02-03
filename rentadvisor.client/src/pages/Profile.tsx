@@ -105,37 +105,93 @@ const Profile: React.FC = () => {
 
     const isAdmin = currentUser?.roles.includes('Admin');
 
-    return (
+    const getIconPath = (name: string) => {
+        return `../public/Photos/${name.toLowerCase().replace(/\s+/g, '-')}.png`;
+    };
 
+
+    return (
         <div className="main-container">
-            <h2>User Profile</h2>
             <div className="profile-details">
+                <h2>User Profile</h2>
                 <div className='profile-user'>
                     <FontAwesomeIcon icon={faUser} className="profile-icon" />
-                    <p className='profile-username'>{user.name}</p>
+                    <p className='profile-username'>{user.userName}</p>
                 </div>
+
+                {/* Display score */}
                 <p className='profile-score'>Score: {user.score}</p>
-                <p className='role-title'>Roles:</p>
-                <div className='role-list'>
+
+                {user.title && (
+                    <div className="profile-title">
+                        <p>{user.title.name}</p>
+                    </div>
+                )}
+
+                {/* Display roles */}
+                <ul className='role-list'>
                     {user.roles.map(role => (
                         <li key={role}>
-                            {role} {isAdmin && <button className='role-button' onClick={() => handleRemoveRole(role)}>Remove</button>}
+                            {role}{' '}
+                            {isAdmin && (
+                                <button className='role-button' onClick={() => handleRemoveRole(role)}>
+                                    Remove
+                                </button>
+                            )}
                         </li>
                     ))}
+                </ul>
+            </div>
+
+            {/* Display badges */}
+            <div className="badge-section">
+                {/* <h3>Badges</h3> */}
+                <div className="badge-container">
+                    {user.badges && user.badges.length > 0 ? (
+                        user.badges.map(badge => (
+                            <div key={badge.id} className="badge-item">
+                                <img
+                                    src={getIconPath(badge.name)}
+                                    alt={badge.name}
+                                    onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                                        e.currentTarget.src = '/default-badge.png';
+                                    }}
+                                />
+                                <p className="badge-name">{badge.name}</p>
+                                <p className="badge-description">{badge.description}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No badges yet.</p>
+                    )}
                 </div>
             </div>
 
+            {/* Role management (only if the current user is Admin) */}
             {isAdmin && (
                 <div className="role-management">
                     <h3>Manage Roles</h3>
                     <div className='role-select-container'>
-                        <select className='role-select' value={selectedRole} onChange={e => setSelectedRole(e.target.value)}>
-                            <option className='role-option' value="">Select a role</option>
+                        <select
+                            className='role-select'
+                            value={selectedRole}
+                            onChange={e => setSelectedRole(e.target.value)}
+                        >
+                            <option className='role-option' value="">
+                                Select a role
+                            </option>
                             {availableRoles.map(role => (
-                                <option className='role-option' key={role} value={role}>{role}</option>
+                                <option className='role-option' key={role} value={role}>
+                                    {role}
+                                </option>
                             ))}
                         </select>
-                        <button className='role-button' onClick={() => handleAddRole(selectedRole)}>Add Role</button>
+                        <button
+                            className='role-button'
+                            onClick={() => handleAddRole(selectedRole)}
+                        >
+                            Add Role
+                        </button>
                     </div>
                 </div>
             )}

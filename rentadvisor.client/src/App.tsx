@@ -21,9 +21,23 @@ export interface User {
     name: string;
     email: string;
     score: number;
-    roles?: string[]; 
+    badges: Badge[];
+    title?: Title | null;
+    roles?: string[];
     createdAt: string;
     lastLogin: string;
+}
+
+export interface Badge {
+    id: string;
+    name: string;
+    description: string;
+}
+
+export interface Title {
+    id: string;
+    name: string;
+    requiredPoints: number;
 }
 
 export type Review = {
@@ -58,7 +72,7 @@ export type Property = {
 
 
 function App() {
-    
+
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
@@ -75,11 +89,13 @@ function App() {
                 name: userData.name,
                 email: userData.email,
                 score: userData.score,
+                badges: userData.badges,
+                title: userData.title,
                 roles: [], // Assuming roles are not provided in the response
                 createdAt: userData.createdAt,
                 lastLogin: userData.lastLogin
             };
-    
+
             setUser(mappedUser);
             localStorage.setItem('userId', userData.id);
         } catch (error) {
@@ -92,7 +108,7 @@ function App() {
             <Navbar user={user} setUser={setUser} />
             <Routes>
                 <Route path="/" element={<MainLayout ><Home /></MainLayout>} />
-                <Route path="/login" element={<AuthLayout><Login setUser={setUser}/></AuthLayout>} />
+                <Route path="/login" element={<AuthLayout><Login setUser={setUser} /></AuthLayout>} />
                 <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
                 <Route path="/profile/:userId" element={<MainLayout><Profile /></MainLayout>} />
                 <Route path="/createProperty" element={<MainLayout><CreateProperty /></MainLayout>} />
