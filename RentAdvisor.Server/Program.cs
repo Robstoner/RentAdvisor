@@ -33,7 +33,8 @@ namespace RentAdvisor.Server
             {
                 options.AddPolicy("AllowSpecificOrigin",
                     builder => builder
-                        .WithOrigins("https://localhost:5173", "http://localhost:3000", "localhost:3000", "165.22.91.149:8080", "http://165.22.91.149:8080") // Update this to your React app's URL
+                        .WithOrigins("https://localhost:5173", "http://localhost:3000", "localhost:3000", "165.22.91.149:8080", "http://165.22.91.149:8080",
+                                    "https://www.rentadvisor.mom", "https://rentadvisor.mom") // Update this to your React app's URL
                         .AllowAnyHeader()
                         .AllowAnyMethod());
             });
