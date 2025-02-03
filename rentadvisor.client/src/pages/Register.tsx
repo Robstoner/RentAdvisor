@@ -35,7 +35,7 @@ const Register = () => {
         }
 
         try {
-            const response = await axios.post('register', { email, password });
+            const response = await axios.post('api/register', { email, password });
             localStorage.setItem('token', response.data.accessToken);
             localStorage.setItem('refreshToken', response.data.refreshToken);
             navigate('/login');

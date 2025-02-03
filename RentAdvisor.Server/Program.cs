@@ -69,7 +69,7 @@ namespace RentAdvisor.Server
 
             //app.UseHttpsRedirection();
 
-            app.MapIdentityApi<User>();
+            app.MapGroup("/api").MapIdentityApi<User>();
 
             app.UseAuthentication();
             app.UseAuthorization();
