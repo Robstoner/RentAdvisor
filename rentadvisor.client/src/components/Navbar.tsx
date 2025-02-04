@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
-import { faFaceKissBeam } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faHouse } from '@fortawesome/free-solid-svg-icons';
 import '../css/Navbar.css';
 import axios from '../api/axiosConfig';
 import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
@@ -80,7 +79,7 @@ const Navbar: React.FC<NavbarProps> = ({ user, setUser }) => {
   return (
     <div className="navbar">
       <div className="navbar-logo" onClick={handleLogoClick}>
-        <FontAwesomeIcon icon={faFaceKissBeam} className="icon" />
+        <FontAwesomeIcon icon={faHouse} className="icon" />
         <p>Homepage</p>
       </div>
       <div className="navbar-user" onClick={handleUserClick} ref={dropdownRef}>
