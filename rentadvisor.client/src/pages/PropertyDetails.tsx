@@ -58,8 +58,9 @@ const PropertyDetails: React.FC = () => {
                 const response = await axios.get<User>('api/Users/current');
                 setCurrentUser(response.data);
             } catch (error) {
-                setError('Failed to fetch current user information.');
-                console.error('Error fetching current user:', error);
+                setCurrentUser(null);
+                //setError('Failed to fetch current user information.');
+                //console.error('Error fetching current user:', error);
             }
         };
 
@@ -311,32 +312,33 @@ const PropertyDetails: React.FC = () => {
                     ) : null}
                 </div>
             </div>
-
-            <div className="new-review-form">
-                <h3>Submit a Review</h3>
-                <form onSubmit={handleReviewSubmit}>
-                    <input
-                        type="text"
-                        name="title"
-                        placeholder="Review Title"
-                        value={newReview.title}
-                        onChange={handleInputChange}
-                        required
-                    />
-                    <textarea
-                        name="description"
-                        placeholder="Your Review"
-                        value={newReview.description}
-                        onChange={handleInputChange}
-                        required
-                    />
-                    <div className='button-group'>
-                        <button type="submit" disabled={submittingReview}>
-                            {submittingReview ? 'Submitting...' : 'Submit Review'}
-                        </button>
-                    </div>
-                </form>
-            </div>
+            {currentUser ? (
+                <div className="new-review-form">
+                    <h3>Submit a Review</h3>
+                    <form onSubmit={handleReviewSubmit}>
+                        <input
+                            type="text"
+                            name="title"
+                            placeholder="Review Title"
+                            value={newReview.title}
+                            onChange={handleInputChange}
+                            required
+                        />
+                        <textarea
+                            name="description"
+                            placeholder="Your Review"
+                            value={newReview.description}
+                            onChange={handleInputChange}
+                            required
+                        />
+                        <div className='button-group'>
+                            <button type="submit" disabled={submittingReview}>
+                                {submittingReview ? 'Submitting...' : 'Submit Review'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            ) : <p>You need to be logged in to submit a review</p>}
 
             <div className="property-reviews">
                 <h3>Reviews:</h3>

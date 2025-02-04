@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from '../api/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import '../css/CreateProperty.css'; 
+import { User } from '../App';
 
 const CreateProperty: React.FC = () => {
     const [name, setName] = useState('');
@@ -13,15 +14,23 @@ const CreateProperty: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
-    const [userId, setUserId] = useState<string | null>(null);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
 
+
+    // Fetch current user information
     useEffect(() => {
-        const storedUserId = localStorage.getItem('userId');
-        if (storedUserId) {
-            setUserId(storedUserId);
-        } else {
-            setError('User ID is required to create a property.');
-        }
+        const fetchCurrentUser = async () => {
+            try {
+                const response = await axios.get<User>('api/Users/current');
+                setCurrentUser(response.data);
+            } catch {
+                navigate('/login');
+                //setError('Failed to fetch current user information.');
+                //console.error('Error fetching current user:', error);
+            }
+        };
+
+        fetchCurrentUser();
     }, []);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,9 +50,8 @@ const CreateProperty: React.FC = () => {
         formData.append('address', address);
         formData.append('description', description);
         formData.append('features', features.split(',').map(feature => feature.trim()).join(','));
-        if (userId) {
-            formData.append('userId', userId);
-        }
+        formData.append('userId', currentUser.id);
+
 
         // Append each image to the form data
         images.forEach((image) => {
