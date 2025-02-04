@@ -35,6 +35,9 @@ const PropertyDetails: React.FC = () => {
         description: ''
     });
 
+    const [reviewExists, setReviewExists] = useState<boolean>(false);
+
+
     const fetchUserDetails = async (userId: string) => {
         if (userDetails[userId]) return; // Avoid redundant requests
 
@@ -97,6 +100,10 @@ const PropertyDetails: React.FC = () => {
                 // Fetch reviews
                 const reviewsResponse = await axios.get<Review[]>(`/api/Properties/${propertyId}/Reviews`);
                 setReviews(reviewsResponse.data);
+
+                const userReviewExists = reviews.some(review => review.userId === currentUser.id);
+                setReviewExists(userReviewExists);
+                
             } catch (error) {
                 setError('Failed to fetch property details or reviews.');
                 console.error('Error fetching property details or reviews:', error);
@@ -312,7 +319,7 @@ const PropertyDetails: React.FC = () => {
                     ) : null}
                 </div>
             </div>
-            {currentUser ? (
+            {currentUser ? ( reviewExists ? (
                 <div className="new-review-form">
                     <h3>Submit a Review</h3>
                     <form onSubmit={handleReviewSubmit}>
@@ -338,7 +345,8 @@ const PropertyDetails: React.FC = () => {
                         </div>
                     </form>
                 </div>
-            ) : <p>You need to be logged in to submit a review</p>}
+                ) : <p>You can only leave one review per property.</p>
+            ) : <p>You need to be logged in to submit a review.</p>}
 
             <div className="property-reviews">
                 <h3>Reviews:</h3>
