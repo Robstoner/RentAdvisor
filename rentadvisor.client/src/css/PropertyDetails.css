@@ -170,8 +170,6 @@
 }
 
 .review-card {
-    border-bottom: 1px solid #444;
-    padding: 10px 0;
     color: #d1d1d1;
 }
 
@@ -179,8 +177,18 @@
     border-bottom: none;
 }
 
+.review-card strong {
+    font-size: .75rem;
+}
+
 .review-card p {
-    margin: 5px 0;
+    margin: 0;
+    font-size: 14px;
+    color: #bbb;
+}
+
+.review-card p::first-line {
+    margin: 10rem;
     font-size: 14px;
     color: #bbb;
 }
@@ -198,7 +206,6 @@
 
 .edit-review-button,
 .delete-review-button {
-    padding: .5rem 1rem .5rem 1rem;
     font-size: 12px;
     border: none;
     border-radius: .5rem;

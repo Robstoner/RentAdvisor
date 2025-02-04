@@ -20,6 +20,7 @@ const PropertyDetails: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
 
     const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [userDetails, setUserDetails] = useState<{ [key: string]: User }>({});
 
     const [imageUrls, setImageUrls] = useState<string[]>([]);
 
@@ -33,6 +34,20 @@ const PropertyDetails: React.FC = () => {
         title: '',
         description: ''
     });
+
+    const fetchUserDetails = async (userId: string) => {
+        if (userDetails[userId]) return; // Avoid redundant requests
+
+        try {
+            const response = await axios.get<User>(`/api/Users/${userId}`);
+            setUserDetails((prev) => ({
+                ...prev,
+                [userId]: response.data,
+            }));
+        } catch (error) {
+            console.error(`Error fetching user details for ${userId}:`, error);
+        }
+    };
 
     const navigate = useNavigate();
 
@@ -53,6 +68,8 @@ const PropertyDetails: React.FC = () => {
 
     // Fetch property details and reviews
     useEffect(() => {
+
+
         const fetchPropertyDetails = async () => {
             try {
                 const propertyResponse = await axios.get<Property>(`/api/Properties/${propertyId}`);
@@ -91,6 +108,12 @@ const PropertyDetails: React.FC = () => {
             fetchPropertyDetails();
         }
     }, [propertyId]);
+
+    useEffect(() => {
+        if (reviews.length > 0) {
+            reviews.forEach((review) => fetchUserDetails(review.userId));
+        }
+    }, [reviews]);
 
     // Handle property deletion
     const handleDelete = async () => {
@@ -320,8 +343,12 @@ const PropertyDetails: React.FC = () => {
                 {reviews.length > 0 ? (
                     reviews.map((review) => (
                         <div key={review.id} className="review-card">
-                            <p><FontAwesomeIcon icon={faUser} /> {review.userId}</p>
-                            <strong>Posted on:</strong> {new Date(review.createdAt).toLocaleDateString()}
+                            <p>
+                                <i><FontAwesomeIcon icon={faUser} /> </i>
+                                {userDetails[review.userId]?.name || 'Unknown User'}
+                                {userDetails[review.userId]?.title ? ` - ${userDetails[review.userId]?.title.name}` : ''}
+                            </p>
+                            <strong>Posted on: {new Date(review.createdAt).toLocaleDateString()}</strong>
 
                             {editingReviewId === review.id ? (
                                 <form onSubmit={handleEditSubmit} className="edit-review-form">
