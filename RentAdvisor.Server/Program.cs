@@ -72,10 +72,13 @@ namespace RentAdvisor.Server
 
             app.MapGroup("/api").MapIdentityApi<User>();
 
+            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
+
+            app.MapFallbackToFile("index.html");
 
             using (var scope = app.Services.CreateScope())
             {
