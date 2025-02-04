@@ -345,8 +345,8 @@ const PropertyDetails: React.FC = () => {
                         </div>
                     </form>
                 </div>
-                ) : <p>You can only leave one review per property.</p>
-            ) : <p>You need to be logged in to submit a review.</p>}
+                ) : <p className='warning'>You can only leave one review per property.</p>
+            ) : <p className='warning'>You need to be logged in to submit a review.</p>}
 
             <div className="property-reviews">
                 <h3>Reviews:</h3>

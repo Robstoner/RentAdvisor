@@ -157,10 +157,10 @@
 }
 
 .property-reviews {
-    background-color: #2c2c2c;
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
 }
 
 .property-reviews h3 {
@@ -171,6 +171,11 @@
 
 .review-card {
     color: #d1d1d1;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: .5rem;
+    background-color: #2c2c2c;
+
 }
 
 .review-card:last-child {
@@ -188,9 +193,6 @@
 }
 
 .review-card p::first-line {
-    margin: 10rem;
-    font-size: 14px;
-    color: #bbb;
 }
 
 .review-card h4 {
@@ -236,6 +238,12 @@
 .edit-review-buttons {
     display: flex;
     flex-direction: row;
+}
+
+.warning {
+    color: #d1d1d1;
+    font-size: 18px;
+    text-decoration: underline;
 }
 
 /* Responsive Design */
