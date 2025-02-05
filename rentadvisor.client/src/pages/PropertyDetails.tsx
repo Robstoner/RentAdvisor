@@ -319,7 +319,7 @@ const PropertyDetails: React.FC = () => {
                     ) : null}
                 </div>
             </div>
-            {currentUser ? ( reviewExists ? (
+            {currentUser ? (
                 <div className="new-review-form">
                     <h3>Submit a Review</h3>
                     <form onSubmit={handleReviewSubmit}>
@@ -345,7 +345,6 @@ const PropertyDetails: React.FC = () => {
                         </div>
                     </form>
                 </div>
-                ) : <p className='warning'>You can only leave one review per property.</p>
             ) : <p className='warning'>You need to be logged in to submit a review.</p>}
 
             <div className="property-reviews">
